@@ -3,6 +3,7 @@
 Use these instead of ad hoc Model.objects.create().
 """
 
+from django.contrib.auth import get_user_model
 from model_bakery import baker
 
 
@@ -21,8 +22,6 @@ def make_user(**kwargs):
     For APIClient auth, use auth_client fixture or
     force_authenticate(user=make_user(...)).
     """
-    from django.contrib.auth import get_user_model
-
     User = get_user_model()  # noqa: N806
     username = kwargs.pop("username", "testuser")
     password = kwargs.pop("password", "testpass")
@@ -35,8 +34,6 @@ def make_superuser(**kwargs):
     For admin-style tests, use admin_client fixture or
     force_authenticate(user=make_superuser(...)).
     """
-    from django.contrib.auth import get_user_model
-
     User = get_user_model()  # noqa: N806
     username = kwargs.pop("username", "admin")
     email = kwargs.pop("email", "admin@test.example")

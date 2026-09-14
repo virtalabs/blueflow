@@ -1,11 +1,11 @@
 """Join table for assets and vulns."""
 
+import typing
+
 import django_filters
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers, viewsets
-from rest_framework.exceptions import MethodNotAllowed
+from rest_framework import response, serializers, status, viewsets
 from rest_framework.fields import IntegerField
-from rest_framework.generics import Http404, get_object_or_404
 
 from blueflow.models import AssetGroup
 
@@ -41,7 +41,7 @@ class AssetGroupFilter(django_filters.rest_framework.FilterSet):
         model = AssetGroup
 
         # https://docs.djangoproject.com/en/1.11/ref/models/querysets/#field-lookups
-        fields = {
+        fields: typing.ClassVar = {
             "asset": ["exact"],
             "group": ["exact"],
         }
@@ -55,10 +55,7 @@ class AssetGroupViewSet(viewsets.ModelViewSet):
     serializer_class = AssetGroupSerializer
     filterset_class = AssetGroupFilter
     pagination_class = HugeLimitOffsetPagination
-
-    def delete(self, request, *args, **kwargs):
-        """Allow deletion with query args asset and group."""
-        return self.destroy(request, *args, **kwargs)
+    http_method_names: typing.ClassVar = ["delete"]
 
     def get_object(self):
         """Allow get_object with asset / group combo.
@@ -70,29 +67,23 @@ class AssetGroupViewSet(viewsets.ModelViewSet):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         if lookup_url_kwarg in self.kwargs:
-            # This is how get_object() usually works (lookup_url_kwarg is 'pk')
             filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-            obj = get_object_or_404(queryset, **filter_kwargs)
-        else:
-            # We don't have 'pk'
-            # Ensure we have one and only one AssetGroup, retrieved by
-            # asset / group combo
-            if self.request.method != "DELETE":
-                raise MethodNotAllowed(self.request.method)
-            if not (
-                ("asset" in self.request.query_params)
-                and ("group" in self.request.query_params)
-            ):
-                msg = "To DELETE one AssetGroup, specify both 'asset' and 'group'."
-                raise MethodNotAllowed("DELETE", detail=msg)
-            assert queryset.count() <= 1, (
-                "Should only be possible to get 0 or 1 assetgroups here"
-            )
-            if queryset.count() < 1:
-                raise Http404("No AssetGroup matches the given query")
-            obj = queryset.first()
+            obj = super().get_object(queryset, **filter_kwargs)
+            return obj
 
-        # May raise a permission denied
+        # We don't have 'pk'
+        # Ensure we have one and only one AssetGroup, retrieved by
+        # asset / group combo
+        no_asset = "asset" not in self.request.query_params
+        no_group = "group" not in self.request.query_params
+        if no_asset and no_group:
+            msg = "To DELETE one AssetGroup, specify both 'asset' and 'group'."
+            raise response.Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        if queryset.count() > 1:
+            msg = "Should only be possible to get 1 assetgroup here"
+            raise ValueError(msg)
+
+        obj = queryset.first()
         self.check_object_permissions(self.request, obj)
-
         return obj

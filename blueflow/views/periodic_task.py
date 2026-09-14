@@ -129,9 +129,8 @@ class PeriodicTaskSerializer(serializers.HyperlinkedModelSerializer):
         ):
             return attrs
         if not bool("interval" in attrs) ^ bool("crontab" in attrs):
-            raise serializers.ValidationError(
-                "Exactly one of (interval, crontab) is required"
-            )
+            msg = "Exactly one of (interval, crontab) is required"
+            raise serializers.ValidationError(msg)
         return attrs
 
     class Meta:
