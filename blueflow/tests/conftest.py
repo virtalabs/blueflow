@@ -53,7 +53,7 @@ def custom_field_edit_client(auth_client):
 
 
 @pytest.fixture
-def token_auth_client(db, enable_core_switch):
+def token_auth_client(db):
     """Return API client authenticated via Token header."""
     user = make_user(username="scanner")
     token, _ = Token.objects.get_or_create(user=user)
