@@ -22,7 +22,7 @@ def pytest_ignore_collect(path, config):
         path_str = str(path).replace("\\", "/")
         if "tests/blueflow" in path_str:
             return True
-    except Exception: # noqa: BLE001, S110
+    except Exception:  # noqa: BLE001, S110
         pass
     return False
 
@@ -38,7 +38,7 @@ def enable_core_switch(db):
 
 
 @pytest.fixture(scope="session")
-def django_db_setup( # noqa: PLR0917, PLR0913
+def django_db_setup(  # noqa: PLR0917, PLR0913
     request,
     django_test_environment,
     django_db_blocker,
@@ -46,13 +46,12 @@ def django_db_setup( # noqa: PLR0917, PLR0913
     django_db_keepdb,
     django_db_createdb,
     django_db_modify_db_settings,
-    ):
+):
     # TODO(taylorcochran): Why do we have this at all?
     # we should prefer @pytest.mark.django_db
     """Use default DB setup for PostgreSQL (tests use PostgreSQL only, no SQLite)."""
     setup_databases_args = {}
     if not django_db_use_migrations:
-
         _disable_migrations()
     if django_db_keepdb and not django_db_createdb:
         setup_databases_args["keepdb"] = True
@@ -69,9 +68,9 @@ def django_db_setup( # noqa: PLR0917, PLR0913
     yield
     if not django_db_keepdb:
         with django_db_blocker.unblock():
-            try: # noqa: SIM105
+            try:  # noqa: SIM105
                 teardown_databases(db_cfg, verbosity=request.config.option.verbose)
-            except Exception: # noqa: BLE001, S110
+            except Exception:  # noqa: BLE001, S110
                 pass
 
 

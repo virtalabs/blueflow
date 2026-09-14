@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 import requests
+from django.utils import timezone
 
 from blueflow.celery.tasks import (
     _send_viper_payload,
@@ -55,7 +56,7 @@ def viper_callback_allowlist(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def _is_success_viper_send_result(result: str) -> bool:
-    """True when _send_viper_payload completed pages (list), not an HTTP error body."""
+    """Ensure _send_viper_payload completed pages is a list."""
     parsed = json.loads(result)
     return isinstance(parsed, list)
 
@@ -72,7 +73,6 @@ def viper_prism_callback_url() -> str:
 
 @pytest.fixture
 def seed_ge_assets(django_db_blocker) -> None:
-    from django.utils import timezone
 
     with django_db_blocker.unblock():
         for fields in _GEHEALTHCARE_ASSETS:
