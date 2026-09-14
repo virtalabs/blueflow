@@ -4,7 +4,6 @@ import logging
 
 from rest_framework import permissions, request, serializers, status, viewsets
 from rest_framework.response import Response
-from waffle.mixins import WaffleSwitchMixin
 
 from blueflow import exceptions
 
@@ -33,14 +32,12 @@ class NessusBrowseSerializer(serializers.Serializer):
         raise serializers.ValidationError(msg)
 
 
-class NessusBrowseViewSet(WaffleSwitchMixin, viewsets.ViewSet):
+class NessusBrowseViewSet(viewsets.ViewSet):
     """Interact with Nessus.
 
     This API will be used to interact with Nessus, browse 'scans' and
     historical scans.
     """
-
-    waffle_switch = "core"
 
     serializer = NessusBrowseSerializer
     # NOTE: if we want to use a "permission" (e.g., "edit connector" or
