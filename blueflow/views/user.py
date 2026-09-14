@@ -5,7 +5,6 @@ import logging
 from django.contrib.auth.models import User
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, viewsets
-from waffle.mixins import WaffleSwitchMixin
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 @extend_schema(exclude=True)
-class UserViewSet(WaffleSwitchMixin, viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """API endpoint that allows users to be viewed or edited."""
-
-    waffle_switch = "core"
 
     queryset = User.objects.all()
     serializer_class = UserSerializer

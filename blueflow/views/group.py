@@ -10,7 +10,6 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from waffle.mixins import WaffleSwitchMixin
 
 from blueflow.models import Asset, AssetGroup, Group
 from blueflow.utils import iterable
@@ -64,19 +63,16 @@ class GroupFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class GroupViewSet(WaffleSwitchMixin, viewsets.ModelViewSet):
+class GroupViewSet(viewsets.ModelViewSet):
     """Free-text group associated with one or more assets."""
 
-    waffle_switch = "core"
-
-    # Group model does have 'objects'
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     filterset_class = GroupFilter
     pagination_class = HugeLimitOffsetPagination
 
     @action(detail=True, methods=["POST"])
-    def assets(self, request, *_):
+    def assets(self, request, *_) -> Response:
         """Add several assets to this Group."""
         group = self.get_object()
 

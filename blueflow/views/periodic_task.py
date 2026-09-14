@@ -1,12 +1,12 @@
 """ViewSet for periodic tasks, part of django-celery-beat."""
 
 import logging
+import typing
 
 import django_filters
 from django_celery_beat.models import CrontabSchedule, IntervalSchedule, PeriodicTask
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, viewsets
-from waffle.mixins import WaffleSwitchMixin
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,6 @@ class CrontabScheduleSerializer(serializers.ModelSerializer):
     Teaches the rest_framework (the ViewSet) which fields to expect.
     """
 
-    # Human-readable name
     display_name = serializers.SerializerMethodField("do_display_name")
 
     @extend_schema_field(serializers.CharField())
@@ -38,12 +37,9 @@ class CrontabScheduleSerializer(serializers.ModelSerializer):
         )
 
 
-class CrontabScheduleViewSet(WaffleSwitchMixin, viewsets.ModelViewSet):
+class CrontabScheduleViewSet(viewsets.ModelViewSet):
     """Periodic (crontab) schedule."""
 
-    waffle_switch = "core"
-
-    # Model does have objects...
     queryset = CrontabSchedule.objects.all()
     serializer_class = CrontabScheduleSerializer
 
@@ -54,7 +50,6 @@ class IntervalScheduleSerializer(serializers.ModelSerializer):
     Teaches the rest_framework (the ViewSet) which fields to expect.
     """
 
-    # Human-readable name
     display_name = serializers.SerializerMethodField("do_display_name")
 
     @extend_schema_field(serializers.CharField())
@@ -72,12 +67,9 @@ class IntervalScheduleSerializer(serializers.ModelSerializer):
         )
 
 
-class IntervalScheduleViewSet(WaffleSwitchMixin, viewsets.ModelViewSet):
+class IntervalScheduleViewSet(viewsets.ModelViewSet):
     """Periodic (interval) schedule."""
 
-    waffle_switch = "core"
-
-    # Model does have objects...
     queryset = IntervalSchedule.objects.all()
     serializer_class = IntervalScheduleSerializer
 
@@ -146,7 +138,7 @@ class PeriodicTaskSerializer(serializers.HyperlinkedModelSerializer):
         model = PeriodicTask
         # NOTE HHolm 2017-08-29: I think most of these args are in fact
         #   read-only.  We should consider tagging them as such.
-        fields = [
+        fields = (
             "id",
             "name",
             "task",
@@ -168,7 +160,7 @@ class PeriodicTaskSerializer(serializers.HyperlinkedModelSerializer):
             "url",
             "display_name",
             "display_schedule",
-        ]
+        )
 
 
 class PeriodicTaskFilter(django_filters.rest_framework.FilterSet):
@@ -177,19 +169,17 @@ class PeriodicTaskFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = PeriodicTask
 
-        fields = {
+        fields: typing.ClassVar = {
             "name": ["exact"],
             "task": ["exact"],
         }
 
 
-class PeriodicTaskViewSet(WaffleSwitchMixin, viewsets.ModelViewSet):
+class PeriodicTaskViewSet(viewsets.ModelViewSet):
     """Periodic task."""
-
-    waffle_switch = "core"
 
     queryset = PeriodicTask.objects.all()
     serializer_class = PeriodicTaskSerializer
 
-    search_fields = ["name"]
+    search_fields: typing.ClassVar = ["name"]
     filterset_class = PeriodicTaskFilter

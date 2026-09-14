@@ -11,7 +11,6 @@ from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from simple_history import utils as hist_utils
-from waffle.mixins import WaffleSwitchMixin
 
 from blueflow.models import Asset, AssetTag, Tag
 from blueflow.utils import iterable
@@ -79,7 +78,6 @@ class TagFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = Tag
 
-        # Documentation about lookups is here:
         # https://docs.djangoproject.com/en/1.11/ref/models/querysets/#field-lookups
         fields: typing.ClassVar = {
             "asset": ["exact"],
@@ -87,19 +85,16 @@ class TagFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class TagViewSet(WaffleSwitchMixin, ChangeReasonMixin, viewsets.ModelViewSet):
+class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
     """Free-text tag associated with one or more assets."""
 
-    waffle_switch = "core"
-
-    # Tag model does have 'objects'
     queryset = Tag.objects.order_by("name")
     serializer_class = TagSerializer
     filterset_class = TagFilter
     pagination_class = HugeLimitOffsetPagination
 
     @action(detail=True, methods=["POST"])
-    def assets(self, request, *_):
+    def assets(self, request, *_) -> Response:
         """Add several assets to this Tag."""
         tag = self.get_object()
 

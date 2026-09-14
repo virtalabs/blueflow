@@ -3,7 +3,6 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, viewsets
 from rest_framework.fields import IntegerField
-from waffle.mixins import WaffleSwitchMixin
 
 from blueflow.models import AssetTag
 
@@ -26,18 +25,14 @@ class AssetTagSerializer(serializers.ModelSerializer):
             "tag_id",
             "date_added",
             "provenance",
-            # Fields that are created (not stored directly in schema)
             "tag",
         )
 
 
 @extend_schema(exclude=True)
-class AssetTagViewSet(WaffleSwitchMixin, ChangeReasonMixin, viewsets.ModelViewSet):
+class AssetTagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
     """An AssetTag links a tag to an asset."""
 
-    waffle_switch = "core"
-
-    # AssetTag model does have 'objects'
     queryset = AssetTag.objects.all()
     serializer_class = AssetTagSerializer
     pagination_class = HugeLimitOffsetPagination

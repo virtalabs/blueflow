@@ -6,7 +6,6 @@ from rest_framework import serializers, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.fields import IntegerField
 from rest_framework.generics import Http404, get_object_or_404
-from waffle.mixins import WaffleSwitchMixin
 
 from blueflow.models import AssetGroup
 
@@ -31,7 +30,6 @@ class AssetGroupSerializer(serializers.ModelSerializer):
             "group_id",
             "date_added",
             "provenance",
-            # Fields that are created (not stored directly in schema)
             "group",
         )
 
@@ -39,12 +37,9 @@ class AssetGroupSerializer(serializers.ModelSerializer):
 class AssetGroupFilter(django_filters.rest_framework.FilterSet):
     """FilterSet."""
 
-    # Few public methods; that's just how django-filters work
-
     class Meta:
         model = AssetGroup
 
-        # Documentation about lookups is here:
         # https://docs.djangoproject.com/en/1.11/ref/models/querysets/#field-lookups
         fields = {
             "asset": ["exact"],
@@ -53,12 +48,9 @@ class AssetGroupFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class AssetGroupViewSet(WaffleSwitchMixin, viewsets.ModelViewSet):
+class AssetGroupViewSet(viewsets.ModelViewSet):
     """An AssetGroup links a group to an asset."""
 
-    waffle_switch = "core"
-
-    # AssetGroup model does have 'objects'
     queryset = AssetGroup.objects.all()
     serializer_class = AssetGroupSerializer
     filterset_class = AssetGroupFilter
