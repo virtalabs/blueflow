@@ -4,8 +4,9 @@ import typing
 
 import django_filters
 from drf_spectacular.utils import extend_schema
-from rest_framework import response, serializers, status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.fields import IntegerField
+from rest_framework.generics import get_object_or_404
 
 from blueflow.models import AssetGroup
 
@@ -65,20 +66,17 @@ class AssetGroupViewSet(viewsets.ModelViewSet):
         """
         queryset = self.filter_queryset(self.get_queryset())
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
 
         if lookup_url_kwarg in self.kwargs:
-            filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-            obj = super().get_object(queryset, **filter_kwargs)
+            obj = get_object_or_404(queryset, **filter_kwargs)
             return obj
 
-        # We don't have 'pk'
-        # Ensure we have one and only one AssetGroup, retrieved by
-        # asset / group combo
         no_asset = "asset" not in self.request.query_params
         no_group = "group" not in self.request.query_params
-        if no_asset and no_group:
+        if no_asset or no_group:
             msg = "To DELETE one AssetGroup, specify both 'asset' and 'group'."
-            raise response.Response(msg, status=status.HTTP_400_BAD_REQUEST)
+            raise serializers.ValidationError(msg, status=status.HTTP_400_BAD_REQUEST)
 
         if queryset.count() > 1:
             msg = "Should only be possible to get 1 assetgroup here"
