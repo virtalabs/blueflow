@@ -71,7 +71,6 @@ dependencies = [
     { name = "django-jsx" },
     { name = "django-netfields" },
     { name = "django-simple-history" },
-    { name = "django-waffle" },
     { name = "djangorestframework" },
     { name = "drf-spectacular" },
     { name = "netaddr" },
@@ -120,7 +119,6 @@ requires-dist = [
     { name = "django-simple-history" },
     { name = "django-stubs", extras = ["compatible-mypy"], marker = "extra == 'dev'" },
     { name = "django-test-migrations", marker = "extra == 'dev'" },
-    { name = "django-waffle", specifier = ">=5.0.0" },
     { name = "djangorestframework", specifier = ">=3.16,<3.17" },
     { name = "drf-spectacular", specifier = "<=0.29" },
     { name = "freezegun", marker = "extra == 'dev'", specifier = ">=1.0,<3" },
@@ -469,18 +467,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/da/05/9b93a66452cdb8a08ab26f08d5766d2332673e659a8b2aeb73f2a904d421/django_timezone_field-7.2.1.tar.gz", hash = "sha256:def846f9e7200b7b8f2a28fcce2b78fb2d470f6a9f272b07c4e014f6ba4c6d2e", size = 13096 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/41/7f/d885667401515b467f84569c56075bc9add72c9fd425fca51a25f4c997e1/django_timezone_field-7.2.1-py3-none-any.whl", hash = "sha256:276915b72c5816f57c3baf9e43f816c695ef940d1b21f91ebf6203c09bf4ad44", size = 13284 },
-]
-
-[[package]]
-name = "django-waffle"
-version = "5.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/22/e1/6f533da0d4ac89f427dfd9410e39bfc14ae3a23335ecd549d76be4b2a834/django_waffle-5.0.0.tar.gz", hash = "sha256:62f9d00eedf68dafb82657beab56e601bddedc1ea1ccfef91d83df8658708509", size = 37761 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/d2/6f0d664bd35a3fdd0403655c7c32ec290704923f11541ef356b180cd8fbf/django_waffle-5.0.0-py3-none-any.whl", hash = "sha256:3312851d9d926b76b9e90712355781700a383b82b5bf2b61e1f1be97532c0f3d", size = 48137 },
 ]
 
 [[package]]
