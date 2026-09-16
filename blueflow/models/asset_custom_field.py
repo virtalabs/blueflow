@@ -64,8 +64,10 @@ class AssetCustomField(models.Model):
     history = HistoricalRecords()
 
     class Meta:
-        constraints = models.UniqueConstraint(
-            fields=("asset", "field"), name="unique_asset_field"
+        constraints = (
+            models.UniqueConstraint(
+                fields=("asset", "field"), name="unique_asset_field"
+            ),
         )
 
     def __str__(self):
