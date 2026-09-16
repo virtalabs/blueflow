@@ -131,25 +131,6 @@ class AssetViewSet(
     partial_update: Modify the given asset
     """
 
-    # NOTE: Order of mixins/base class is important!  Mixins that override
-    #   methods *must come first* in order to properly override.  This is
-    #   counterintuitive... but it's the way it is.  (Assiduous use of
-    #   inspect.getmro() reveals that this is indeed the case.)
-
-    # Known N+1 problems on the list endpoint.
-    #
-    # AssetSerializer fans out additional queries per-asset for several
-    # related fields. Each of these scales linearly with page size and,
-    # combined with HugeLimitOffsetPagination's 1,000,000 default limit,
-    # can produce pathological query counts on /api/assets/.
-    #
-    # Fields currently causing per-asset fan-out (review for removal from
-    # the list response or for prefetch_related):
-    #   - asset_tags             (nested AssetTagSerializer, many=True;
-    #                             reverse FK to AssetTag through-model)
-    #
-    # Only `usage` is currently prefetched (see test_asset_list_usage_does_
-    # not_n_plus_one). The remaining relations above are unaddressed.
     queryset = (
         models.Asset.objects.prefetch_related("usage")
         .prefetch_related("request_senders__request")
