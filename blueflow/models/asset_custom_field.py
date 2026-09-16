@@ -58,13 +58,15 @@ class AssetCustomField(models.Model):
         "Asset", on_delete=models.CASCADE, related_name="asset_custom_fields"
     )
     field = models.ForeignKey("AssetCustomFieldName", on_delete=models.CASCADE)
-    value_text = models.TextField(blank=True, null=True)
+    value_text = models.TextField(blank=True, null=False)
     date_added = models.DateTimeField(default=timezone.now)
 
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ("asset", "field")
+        constraints = models.UniqueConstraint(
+            fields=("asset", "field"), name="unique_asset_field"
+        )
 
     def __str__(self):
         """Return a string representation of this AssetCustomField."""
