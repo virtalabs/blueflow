@@ -1,4 +1,4 @@
-"""Join table for assets and vulns."""
+"""Join table for assets and groups."""
 
 import typing
 
