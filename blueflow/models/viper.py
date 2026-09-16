@@ -123,11 +123,8 @@ class ViperAsset:
         fixed_manu = raw_manu.replace(" ", "").lower()
         self.vendor = fixed_manu
         self.utilization = _project_usage(asset)
-        if not asset.model:
-            msg = "How did we end up with an asset that has no model???"
-            raise ValueError(msg)
         # TODO(taylorcochran): maybe a serializer cleaner thingy?
-        raw = str(asset.model)
+        raw = str(asset.model) if asset.model else ""
         fixed = raw.replace(" ", "_").lower()
         self.product = fixed
         self.utilization = _project_usage(asset)
