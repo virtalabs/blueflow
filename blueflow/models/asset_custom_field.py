@@ -58,7 +58,7 @@ class AssetCustomField(models.Model):
         "Asset", on_delete=models.CASCADE, related_name="asset_custom_fields"
     )
     field = models.ForeignKey("AssetCustomFieldName", on_delete=models.CASCADE)
-    value_text = models.TextField(blank=True, null=False)
+    value_text = models.TextField(blank=True, null=False, default="")
     date_added = models.DateTimeField(default=timezone.now)
 
     history = HistoricalRecords()
