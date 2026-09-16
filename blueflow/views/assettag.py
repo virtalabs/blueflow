@@ -1,4 +1,4 @@
-"""Joint table for assets and vulns."""
+"""Join table for assets and tags."""
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, viewsets
