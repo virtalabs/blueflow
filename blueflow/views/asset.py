@@ -173,7 +173,7 @@ class AssetViewSet(
         return response
 
     def create(self, *_, **__) -> Response:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=False, methods=["PATCH"])
     def bulk_update(self, request: Request) -> Response:
