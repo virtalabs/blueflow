@@ -6,6 +6,7 @@ from .attachment import Attachment
 from .constants import PORT_MAX, PORT_MIN, PROTOCOL_MAX_LENGTH
 from .group import AssetGroup, Group
 from .interface import NetworkInterface
+from .network import Cidr, Network, TopologyQuerier
 from .request import Request, SystemRequest
 from .tag import AssetTag, Tag
 from .usage import DayOfWeek, Usage
@@ -21,14 +22,17 @@ __all__ = [
     "AssetGroup",
     "AssetTag",
     "Attachment",
+    "Cidr",
     "DayOfWeek",
     "ExternalSystem",
     "Group",
+    "Network",
     "NetworkInterface",
     "Request",
     "System",
     "SystemRequest",
     "Tag",
+    "TopologyQuerier",
     "Usage",
     "ViperWebhookJob",
     "ViperWebhookRequest",

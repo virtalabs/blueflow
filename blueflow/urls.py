@@ -1,6 +1,6 @@
 """Blueflow Django app URLs."""
 
-from django.urls import include, path
+from django import urls
 from drf_spectacular.views import SpectacularAPIView
 from rest_framework.authtoken import views as authview
 from rest_framework.routers import DefaultRouter
@@ -29,8 +29,10 @@ router.register(r"viper", views.ViperViewSet, basename="viper")
 
 
 urlpatterns = [
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("docs/", scalar_viewer, name="api-docs"),
-    path(r"api-token-auth/", authview.obtain_auth_token, name="auth-token"),
-    path("", include(router.urls)),
+    urls.path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    urls.path("docs/", scalar_viewer, name="api-docs"),
+    urls.path(r"api-token-auth/", authview.obtain_auth_token, name="auth-token"),
+    urls.path("", urls.include(router.urls)),
+    urls.path("topology/", views.Topology.as_view(), name="topology"),
+    urls.path("telemetry/", views.Telemetry.as_view(), name="telemetry"),
 ]
