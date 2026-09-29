@@ -1,7 +1,8 @@
 from ipaddress import ip_network
 
 import pytest
-from network import constants
+
+from blueflow.models.network import constants
 
 
 @pytest.mark.django_db
