@@ -1,7 +1,8 @@
 from datetime import UTC, datetime
 
-from network import models, serializers
 from rest_framework import generics, request, response, status
+
+from blueflow import queries, serializers
 
 
 class Topology(generics.ListAPIView):
@@ -19,7 +20,7 @@ class Topology(generics.ListAPIView):
         cidrs = serializer.validated_data.get("cidrs", None)
         network = serializer.validated_data.get("network", None)
         scope = serializer.validated_data["scope"]
-        querier = models.TopologyQuerier(cidrs, scope)
+        querier = queries.TopologyQuerier(cidrs, scope)
         assets = querier.assets
         connections = querier.connections
         external_endpoints = querier.external_systems
