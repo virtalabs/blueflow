@@ -7,6 +7,11 @@ from .asset import (
     AssetUpsertSerializer,
 )
 from .interface import NetworkInterfaceSerializer
+from .network import (
+    TelemetryRequestSerializer,
+    TopologyRequestSerializer,
+    TopologyResponseSerializer,
+)
 
 __all__ = [
     "AssetRequestSerializer",
@@ -16,4 +21,7 @@ __all__ = [
     "AssetUpdateSerializer",
     "AssetUpsertSerializer",
     "NetworkInterfaceSerializer",
+    "TelemetryRequestSerializer",
+    "TopologyRequestSerializer",
+    "TopologyResponseSerializer",
 ]
