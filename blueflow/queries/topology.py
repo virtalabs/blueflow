@@ -4,8 +4,7 @@ from collections import abc
 from django.db.models import Q
 
 from blueflow import models
-
-from . import constants
+from blueflow.models.network import constants
 
 Cidr = ipaddress.IPv4Network | ipaddress.IPv6Network
 Cidrs = abc.Iterable[Cidr]
