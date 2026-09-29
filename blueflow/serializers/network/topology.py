@@ -1,11 +1,10 @@
 import typing
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
-from network import constants
 from rest_framework import serializers
 
-if typing.TYPE_CHECKING:
-    from blueflow.models import Asset, System, SystemNetwork
+from blueflow.models import Asset, System, SystemRequest
+from blueflow.models.network import constants
 
 
 class CidrListField(serializers.ListField):
@@ -55,7 +54,7 @@ class ConnectionResponseSerializer(serializers.Serializer):
     response_observed = serializers.BooleanField()
     service = serializers.CharField()
 
-    def to_internal_value(self, data: "SystemNetwork") -> dict[str, typing.Any]:
+    def to_internal_value(self, data: SystemRequest) -> dict[str, typing.Any]:
         as_dict = {
             "src_ip": data.sender.ip_address,
             # receiver is temporarily nullable awaiting a new ingestion path
