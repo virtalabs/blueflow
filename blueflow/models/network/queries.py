@@ -2,9 +2,10 @@ import ipaddress
 from collections import abc
 
 from django.db.models import Q
-from network import constants
 
 from blueflow import models
+
+from . import constants
 
 Cidr = ipaddress.IPv4Network | ipaddress.IPv6Network
 Cidrs = abc.Iterable[Cidr]
