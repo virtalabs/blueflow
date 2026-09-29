@@ -1,9 +1,9 @@
 from django.db import transaction
 from django.forms import model_to_dict
-from network import serializers
 from rest_framework import generics, request, response, status
 
 from blueflow import models
+from blueflow.models.network import serializers
 
 
 class Telemetry(generics.GenericAPIView):

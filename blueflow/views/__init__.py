@@ -6,6 +6,7 @@ from .asset import AssetViewSet
 from .assetgroup import AssetGroupSerializer, AssetGroupViewSet
 from .assettag import AssetTagSerializer, AssetTagViewSet
 from .group import GroupSerializer, GroupViewSet
+from .network import Telemetry, Topology
 from .periodic_task import (
     CrontabScheduleSerializer,
     CrontabScheduleViewSet,
@@ -35,6 +36,8 @@ __all__ = [
     "PeriodicTaskViewSet",
     "TagSerializer",
     "TagViewSet",
+    "Telemetry",
+    "Topology",
     "UserSerializer",
     "UserViewSet",
     "ViperViewSet",
