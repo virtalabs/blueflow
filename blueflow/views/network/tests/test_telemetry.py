@@ -3,7 +3,7 @@ from rest_framework import status
 
 from blueflow import models
 
-TELEMETRY_URL = "/network/telemetry/"
+TELEMETRY_URL = "/api/network/telemetry/"
 
 
 @pytest.mark.django_db

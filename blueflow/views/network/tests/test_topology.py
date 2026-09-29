@@ -1,9 +1,10 @@
 import pytest
 from model_bakery import baker
-from network import constants
 from rest_framework import response, status
 
-TOPOLOGY_URL = "/network/topology/"
+from blueflow.models.network import constants
+
+TOPOLOGY_URL = "/api/network/topology/"
 
 
 def _get_topology_with_query(

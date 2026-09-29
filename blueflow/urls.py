@@ -33,6 +33,6 @@ urlpatterns = [
     urls.path("docs/", scalar_viewer, name="api-docs"),
     urls.path(r"api-token-auth/", authview.obtain_auth_token, name="auth-token"),
     urls.path("", urls.include(router.urls)),
-    urls.path("topology/", views.Topology.as_view(), name="topology"),
-    urls.path("telemetry/", views.Telemetry.as_view(), name="telemetry"),
+    urls.path("network/topology/", views.Topology.as_view(), name="topology"),
+    urls.path("network/telemetry/", views.Telemetry.as_view(), name="telemetry"),
 ]
