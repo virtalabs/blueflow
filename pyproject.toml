@@ -48,11 +48,13 @@ dev = [
     "model_bakery",
     "django-test-migrations",
     "freezegun>=1.0,<3",
-    "django-stubs[compatible-mypy]",
     "ruff",
     "pre-commit>=4.5.1",
     "pytest-json-report",
     "bandit>=1.9.4",
+    "mypy>=2.2.0",
+    "django-stubs[compatible-mypy]",
+    "djangorestframework-stubs[compatible-mypy]",
 ]
 
 [project.scripts]
@@ -123,3 +125,13 @@ skip-magic-trailing-comma = false
 [tool.bandit]
 exclude = ["conftest.py"]
 exclude_dirs = ["tests", "**/test**",]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "blueflow"
+files = ["blueflow"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+exclude = ["migrations/", ".venv/"]
+
+[mypy.plugins.django-stubs]
+django_settings_module = "project.settings.development"
