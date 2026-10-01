@@ -5,6 +5,8 @@ from django_extensions.db import models as django_extensions
 
 from blueflow.models.interface import NetworkInterface
 
+Kwargs = dict[str, ipaddress.IPv4Address | ipaddress.IPv6Address | netaddr.EUI]
+
 
 class System(django_extensions.TimeStampedModel):
     """System is the parent to all assets and asset like things.
@@ -19,7 +21,7 @@ class System(django_extensions.TimeStampedModel):
         mac_address: netaddr.EUI | str | None = None,
         ips: list[str] | None = None,
     ) -> NetworkInterface:
-        kwargs = {}
+        kwargs: Kwargs = {}
         if mac_address is not None:
             mac = (
                 netaddr.EUI(mac_address)
