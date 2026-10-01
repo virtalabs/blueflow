@@ -7,6 +7,12 @@ class NetworkInterface(django_extensions.TimeStampedModel):
     system = models.OneToOneField(
         "System", related_name="interface", on_delete=models.CASCADE
     )
+    network = models.ForeignKey(
+        "network",
+        null=True,
+        related_name="networks",
+        on_delete=models.SET_NULL,
+    )
     mac_address = netfields.MACAddressField(
         null=True,
         unique=True,
