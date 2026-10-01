@@ -5,12 +5,15 @@ from django_extensions.db import models as django_extensions
 
 class NetworkInterface(django_extensions.TimeStampedModel):
     system = models.OneToOneField(
-        "System", related_name="interface", on_delete=models.CASCADE
+        "System",
+        null=True,
+        related_name="interface",
+        on_delete=models.SET_NULL,
     )
     network = models.ForeignKey(
         "network",
         null=True,
-        related_name="networks",
+        related_name="interfaces",
         on_delete=models.SET_NULL,
     )
     mac_address = netfields.MACAddressField(
