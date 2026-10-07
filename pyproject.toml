@@ -130,8 +130,6 @@ exclude_dirs = ["tests", "**/test**",]
 
 [tool.mypy]
 python_version = "3.12"
-mypy_path = "blueflow"
-files = ["blueflow"]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 exclude = ["migrations/", ".venv/"]
 
@@ -139,5 +137,5 @@ exclude = ["migrations/", ".venv/"]
 module = ["simple_history.*", "netfields.*", "django_celery_beat.*"]
 ignore_missing_imports = true
 
-[mypy.plugins.django-stubs]
+[tool.django-stubs]
 django_settings_module = "project.settings.development"
