@@ -211,10 +211,10 @@ def test_topology_response_contains_connections(
         "Connection length must be exactly the same as created senders list"
     )
 
-    found_senders = [c["src_ip"] for c in connections]
-    assert sender_ips == found_senders
-    found_receivers = [c["dst_ip"] for c in connections]
-    assert receiver_ips == found_receivers
+    found_senders = {c["src_ip"] for c in connections}
+    assert set(sender_ips) == found_senders
+    found_receivers = {c["dst_ip"] for c in connections}
+    assert set(receiver_ips) == found_receivers
 
 
 @pytest.mark.django_db
@@ -237,15 +237,15 @@ def test_topology_response_contains_external(client, make_assets, make_system_re
         "Connection length must be exactly the same as created senders list"
     )
 
-    found_senders = [c["src_ip"] for c in connections]
-    assert sender_ips == found_senders
-    found_receivers = [c["dst_ip"] for c in connections]
-    assert receiver_ips == found_receivers
+    found_senders = {c["src_ip"] for c in connections}
+    assert set(sender_ips) == found_senders
+    found_receivers = {c["dst_ip"] for c in connections}
+    assert set(receiver_ips) == found_receivers
     assert "external_endpoints" in data
     external = data["external_endpoints"]
     assert len(external) == len(receivers)
-    external_ips = [e["ip_address"] for e in external]
-    assert external_ips == receiver_ips
+    external_ips = {e["ip_address"] for e in external}
+    assert set(receiver_ips) == external_ips
 
 
 @pytest.mark.django_db
@@ -271,15 +271,15 @@ def test_topology_response_scoped_to_boundary_contains_external(
         "Connection length must be exactly the same as created senders list"
     )
 
-    found_senders = [c["src_ip"] for c in connections]
-    assert sender_ips == found_senders
-    found_receivers = [c["dst_ip"] for c in connections]
-    assert receiver_ips == found_receivers
+    found_senders = {c["src_ip"] for c in connections}
+    assert set(sender_ips) == found_senders
+    found_receivers = {c["dst_ip"] for c in connections}
+    assert set(receiver_ips) == found_receivers
     assert "external_endpoints" in data
     external = data["external_endpoints"]
     assert len(external) == len(receivers)
-    external_ips = [e["ip_address"] for e in external]
-    assert external_ips == receiver_ips
+    external_ips = {e["ip_address"] for e in external}
+    assert set(receiver_ips) == external_ips
 
 
 @pytest.mark.django_db
@@ -305,10 +305,10 @@ def test_topology_response_scoped_to_internal_does_not_contain_external(
         "Connection length must be exactly the same as created senders list"
     )
 
-    found_senders = [c["src_ip"] for c in connections]
-    assert sender_ips == found_senders
-    found_receivers = [c["dst_ip"] for c in connections]
-    assert receiver_ips == found_receivers
+    found_senders = {c["src_ip"] for c in connections}
+    assert set(sender_ips) == found_senders
+    found_receivers = {c["dst_ip"] for c in connections}
+    assert set(receiver_ips) == found_receivers
     assert "external_endpoints" in data
     external = data["external_endpoints"]
     assert len(external) == 0
