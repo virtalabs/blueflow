@@ -7,7 +7,7 @@ TELEMETRY_URL = "/api/network/telemetry/"
 
 
 @pytest.mark.django_db
-def test_telemtry_post_accepts_sample_payload(client) -> None:
+def test_telemtry_post_accepts_sample_payload(auth_client) -> None:
     payload = {
         "src_ip": "10.10.0.1",
         "dst_ip": "10.10.0.2",
@@ -30,12 +30,12 @@ def test_telemtry_post_accepts_sample_payload(client) -> None:
             "missed_bytes": 0,
         },
     }
-    response = client.post(TELEMETRY_URL, payload)
+    response = auth_client.post(TELEMETRY_URL, payload, format="json")
     assert response.status_code == status.HTTP_201_CREATED
 
 
 @pytest.mark.django_db
-def test_telemtry_post_creates_system_request(client) -> None:
+def test_telemtry_post_creates_system_request(auth_client) -> None:
     payload = {
         "src_ip": "10.10.0.1",
         "dst_ip": "10.10.0.2",
@@ -58,7 +58,7 @@ def test_telemtry_post_creates_system_request(client) -> None:
             "missed_bytes": 0,
         },
     }
-    response = client.post(TELEMETRY_URL, payload)
+    response = auth_client.post(TELEMETRY_URL, payload, format="json")
     assert response.status_code == status.HTTP_201_CREATED
     # will error on failed find
     sender = models.System.objects.get(interface__ipv4=payload["src_ip"])
