@@ -7,7 +7,7 @@ import django_filters
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers, status, viewsets
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from simple_history import utils as hist_utils
@@ -89,6 +89,7 @@ class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
     """Free-text tag associated with one or more assets."""
 
     queryset = Tag.objects.order_by("name")
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = TagSerializer
     filterset_class = TagFilter
     pagination_class = HugeLimitOffsetPagination

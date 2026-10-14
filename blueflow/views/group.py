@@ -7,7 +7,7 @@ import django_filters
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers, status, viewsets
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -67,6 +67,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     """Free-text group associated with one or more assets."""
 
     queryset = Group.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = GroupSerializer
     filterset_class = GroupFilter
     pagination_class = HugeLimitOffsetPagination

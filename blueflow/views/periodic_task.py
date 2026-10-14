@@ -6,7 +6,7 @@ import typing
 import django_filters
 from django_celery_beat.models import CrontabSchedule, IntervalSchedule, PeriodicTask
 from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers, viewsets
+from rest_framework import permissions, serializers, viewsets
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +41,7 @@ class CrontabScheduleViewSet(viewsets.ModelViewSet):
     """Periodic (crontab) schedule."""
 
     queryset = CrontabSchedule.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CrontabScheduleSerializer
 
 
@@ -71,6 +72,7 @@ class IntervalScheduleViewSet(viewsets.ModelViewSet):
     """Periodic (interval) schedule."""
 
     queryset = IntervalSchedule.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = IntervalScheduleSerializer
 
 
@@ -178,6 +180,7 @@ class PeriodicTaskViewSet(viewsets.ModelViewSet):
     """Periodic task."""
 
     queryset = PeriodicTask.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PeriodicTaskSerializer
 
     search_fields: typing.ClassVar = ["name"]
