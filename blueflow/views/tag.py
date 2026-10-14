@@ -95,7 +95,7 @@ class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
     pagination_class = HugeLimitOffsetPagination
 
     @action(detail=True, methods=["POST"])
-    def assets(self, request, *_) -> Response:
+    def assets(self, request, **_) -> Response:
         """Add several assets to this Tag."""
         tag = self.get_object()
 
