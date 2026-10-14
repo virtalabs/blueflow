@@ -73,7 +73,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     pagination_class = HugeLimitOffsetPagination
 
     @action(detail=True, methods=["POST"])
-    def assets(self, request, *_) -> Response:
+    def assets(self, request, **_) -> Response:
         """Add several assets to this Group."""
         group = self.get_object()
 
