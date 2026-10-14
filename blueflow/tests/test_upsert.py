@@ -114,19 +114,6 @@ def test_upsert_token_auth(token_auth_client: APIClient) -> None:
     assert models.Asset.objects.count() == 1
 
 
-@pytest.mark.skip(reason="Blueflow uses AllowAny; auth enforced by consuming product")
-def test_upsert_unauth_403(enable_core_switch: None) -> None:
-    """PUT unauthenticated would assert 403 if IsAuthenticated were enforced."""
-    client = APIClient()
-    response = client.put(
-        "/api/assets/upsert/",
-        json.dumps(SCANNER_FULL_PAYLOAD),
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert models.Asset.objects.count() == 0
-
-
 def test_upsert_unknown_fields_dropped(asset_edit_client: APIClient) -> None:
     """connect_port_tcp and ipv6_address are silently dropped."""
     payload = {
@@ -244,15 +231,6 @@ def test_get_asset_after_upsert_404(asset_edit_client: APIClient) -> None:
     """GET /api/assets/99999/, assert 404."""
     response = asset_edit_client.get("/api/assets/99999/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
-@pytest.mark.skip(reason="Blueflow uses AllowAny; auth enforced by consuming product")
-def test_get_asset_after_upsert_unauth_403(enable_core_switch: None) -> None:
-    """GET without auth would assert 403 if IsAuthenticated were enforced."""
-    asset = models.Asset.objects.create(mac_address="aa:bb:cc:dd:ee:ff")
-    client = APIClient()
-    response = client.get(f"/api/assets/{asset.id}/")
-    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 # ---------------------------------------------------------------------------
