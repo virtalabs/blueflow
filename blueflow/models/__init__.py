@@ -1,5 +1,6 @@
 """BlueFlow Models / Database schema definitions."""
 
+from . import signals  # noqa: F401
 from .asset import Asset, ExternalSystem, System
 from .asset_custom_field import AssetCustomField, AssetCustomFieldName
 from .attachment import Attachment

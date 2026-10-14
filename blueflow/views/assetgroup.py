@@ -4,7 +4,7 @@ import typing
 
 import django_filters
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers, status, viewsets
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.fields import IntegerField
 from rest_framework.generics import get_object_or_404
 
@@ -53,6 +53,7 @@ class AssetGroupViewSet(viewsets.ModelViewSet):
     """An AssetGroup links a group to an asset."""
 
     queryset = AssetGroup.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AssetGroupSerializer
     filterset_class = AssetGroupFilter
     pagination_class = HugeLimitOffsetPagination

@@ -41,7 +41,7 @@ class ViperWebhookResponseSerilizer(serializers.Serializer):
 class ViperViewSet(viewsets.ViewSet):
     """ViewSet for the Viper integration."""
 
-    permission_classes: typing.ClassVar = [permissions.AllowAny]
+    permission_classes: typing.ClassVar = (permissions.IsAuthenticated,)
     parser_classes: typing.ClassVar = [parsers.JSONParser]
     serializer_class: typing.ClassVar = ViperWebhookSerializer
 
