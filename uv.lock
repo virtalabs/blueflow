@@ -166,6 +166,7 @@ dev = [
     { name = "pytest-json-report" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "types-django-filter" },
     { name = "types-netaddr" },
 ]
 prod = [
@@ -213,6 +214,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.5" },
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "sh", specifier = ">=2.2.2" },
+    { name = "types-django-filter", marker = "extra == 'dev'" },
     { name = "types-netaddr", marker = "extra == 'dev'" },
     { name = "whitenoise", marker = "extra == 'prod'", specifier = ">=6.0" },
 ]
@@ -1433,6 +1435,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e9/88/35e4d27d9177d7df76d060e0a18f69c6c5794c96960c94042e20a12c8ba2/stevedore-5.8.0.tar.gz", hash = "sha256:b49867b32ca3016e94100e68dbf26e72aa7b8708d0a3f73c08aeb220370ac715", size = 514710 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f5/ac/19f9941c74add59d17694930ec8105d5eddeee4ce56dd8632b765ca16d6c/stevedore-5.8.0-py3-none-any.whl", hash = "sha256:88eede9e66ca80e34085b9174e2327da2c61ac91f24f70e41c3ad76e4bb4872b", size = 54553 },
+]
+
+[[package]]
+name = "types-django-filter"
+version = "26.2.0.20261005"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django-stubs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7e/25/3b290e9be01eb53cb1331cb6b8b0d875d5db50389f36d4f31bce9ce662e9/types_django_filter-26.2.0.20261005.tar.gz", hash = "sha256:32ef119fa67a6e7c429c707ea2c1acd71f0890cf95f263f578034de16443a32d", size = 16550 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/da/cf/fb90bb24a29df4e32986ca57617d30be33691fcb6c3815a861ba3a167988/types_django_filter-26.2.0.20261005-py3-none-any.whl", hash = "sha256:10165278d832787d4e81ad6ddef2074c9b854fc7cfe266458157f5c0df14358a", size = 19444 },
 ]
 
 [[package]]
