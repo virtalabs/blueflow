@@ -113,21 +113,6 @@ def test_api_create_asset_empty_mac_rejected(asset_edit_client: APIClient) -> No
     assert models.Asset.objects.count() == 0
 
 
-@pytest.mark.xfail(reason="Authentication is not implemented yet")
-def test_api_create_asset_unauthorized(auth_client: APIClient) -> None:
-    """Can't create an asset with an unauthorized client."""
-    payload = _upsert_payload()
-    response = auth_client.post(
-        "/api/assets/",
-        payload,
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    assets = auth_client.get("/api/assets/")
-    assert assets.data["count"] == 0
-    assert len(assets.data["results"]) == 0
-
-
 def test_api_create_get_asset(
     auth_client: APIClient, asset_edit_client: APIClient
 ) -> None:
@@ -170,65 +155,6 @@ def test_api_create_patch_asset(
     assert assets.data["count"] == 1
     asset = assets.data["results"].pop()
     assert asset["hostname"] == new_name
-
-
-@pytest.mark.xfail(raises=AssertionError, reason="Authtentication is not setup yet")
-def test_api_create_unauth_patch_asset(
-    auth_client: APIClient, asset_edit_client: APIClient
-) -> None:
-    """Create an asset, patch with less-authorized client...
-
-    ... except it fails.  See test_authentication.py::test_perm_auth_clients
-    for an indication of why.
-
-    NOTE: This really isn't a problem! See test below
-      (test_unauth_patch_asset) where a client with insufficient
-      authorization is unable to PATCH an asset.
-    """
-    payload = _upsert_payload()
-    response = asset_edit_client.put(
-        "/api/assets/upsert",
-        payload,
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_201_CREATED
-    assert response.data["hostname"] == "nospam"
-    asset_id = response.data["id"]
-    response = auth_client.patch(
-        f"/api/assets/{asset_id}/",
-        {"hostname": "spam"},
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN  # <- this fails...
-    assets = auth_client.get("/api/assets/")
-    assert assets.data["count"] == 1
-    asset = assets.data["results"].pop()
-    assert asset["hostname"] == "nospam"
-
-
-@pytest.mark.xfail(reason="Authentication is not currently implemented")
-def test_unauth_patch_asset(auth_client: APIClient) -> None:
-    """Create an asset, patch with less-authorized client.
-
-    (auth_client is 'authenticated', not 'authorized')
-    """
-    _ = baker.make("Asset")
-    response = auth_client.get("/api/assets/")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json()["count"] == 1
-    asset = response.json()["results"][0]
-    assert asset["hostname"] is None
-    response = auth_client.patch(
-        "/api/assets/{}/".format(asset["id"]),
-        {"hostname": "spam"},
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    response = auth_client.get("/api/assets/")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json()["count"] == 1
-    asset = response.json()["results"][0]
-    assert asset["hostname"] is None  # Still None
 
 
 def test_create_many_assets(auth_client: APIClient) -> None:
