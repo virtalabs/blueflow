@@ -3,12 +3,13 @@ from django.forms import model_to_dict
 from rest_framework import generics, permissions, request, response, status
 
 from blueflow import models, serializers
+from blueflow import permissions as bf_permissions
 
 
 class Telemetry(generics.GenericAPIView):
     """Telemtry manages all endpoints related to collecting network telemetry data."""
 
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
 
     @transaction.atomic
     def post(self, request: request.Request) -> response.Response:

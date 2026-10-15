@@ -21,6 +21,7 @@ from rest_framework import (
 )
 
 from blueflow import models
+from blueflow import permissions as bf_permissions
 from blueflow.celery import tasks
 
 
@@ -41,7 +42,10 @@ class ViperWebhookResponseSerilizer(serializers.Serializer):
 class ViperViewSet(viewsets.ViewSet):
     """ViewSet for the Viper integration."""
 
-    permission_classes: typing.ClassVar = (permissions.IsAuthenticated,)
+    permission_classes: typing.ClassVar = (
+        permissions.IsAuthenticated,
+        bf_permissions.IsViewer,
+    )
     parser_classes: typing.ClassVar = [parsers.JSONParser]
     serializer_class: typing.ClassVar = ViperWebhookSerializer
 

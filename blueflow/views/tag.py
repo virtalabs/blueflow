@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from simple_history import utils as hist_utils
 
+from blueflow import permissions as bf_permissions
 from blueflow.models import Asset, AssetTag, Tag
 from blueflow.utils import iterable
 
@@ -89,7 +90,7 @@ class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
     """Free-text tag associated with one or more assets."""
 
     queryset = Tag.objects.order_by("name")
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = TagSerializer
     filterset_class = TagFilter
     pagination_class = HugeLimitOffsetPagination

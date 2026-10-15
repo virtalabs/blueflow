@@ -11,6 +11,7 @@ from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from blueflow import permissions as bf_permissions
 from blueflow.models import Asset, AssetGroup, Group
 from blueflow.utils import iterable
 
@@ -67,7 +68,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     """Free-text group associated with one or more assets."""
 
     queryset = Group.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = GroupSerializer
     filterset_class = GroupFilter
     pagination_class = HugeLimitOffsetPagination
