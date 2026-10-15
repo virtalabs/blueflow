@@ -8,6 +8,8 @@ from django_celery_beat.models import CrontabSchedule, IntervalSchedule, Periodi
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import permissions, serializers, viewsets
 
+from blueflow import permissions as bf_permissions
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,7 +43,7 @@ class CrontabScheduleViewSet(viewsets.ModelViewSet):
     """Periodic (crontab) schedule."""
 
     queryset = CrontabSchedule.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = CrontabScheduleSerializer
 
 
@@ -72,7 +74,7 @@ class IntervalScheduleViewSet(viewsets.ModelViewSet):
     """Periodic (interval) schedule."""
 
     queryset = IntervalSchedule.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = IntervalScheduleSerializer
 
 
@@ -180,7 +182,7 @@ class PeriodicTaskViewSet(viewsets.ModelViewSet):
     """Periodic task."""
 
     queryset = PeriodicTask.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = PeriodicTaskSerializer
 
     search_fields: typing.ClassVar = ["name"]

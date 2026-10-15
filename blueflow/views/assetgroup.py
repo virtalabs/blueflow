@@ -8,6 +8,7 @@ from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.fields import IntegerField
 from rest_framework.generics import get_object_or_404
 
+from blueflow import permissions as bf_permissions
 from blueflow.models import AssetGroup
 
 from .group import GroupSerializer
@@ -53,7 +54,7 @@ class AssetGroupViewSet(viewsets.ModelViewSet):
     """An AssetGroup links a group to an asset."""
 
     queryset = AssetGroup.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = AssetGroupSerializer
     filterset_class = AssetGroupFilter
     pagination_class = HugeLimitOffsetPagination

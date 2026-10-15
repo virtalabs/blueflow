@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from simple_history import utils as hist_utils
 
 from blueflow import models, serializers
+from blueflow import permissions as bf_permissions
 
 from . import utils
 
@@ -137,7 +138,7 @@ class AssetViewSet(
         .prefetch_related("request_receivers__request")
         .prefetch_related("interface")
     )
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = serializers.AssetRequestSerializer
 
     # Documentation on search filters:

@@ -6,6 +6,7 @@ from rest_framework import permissions, request, serializers, status, viewsets
 from rest_framework.response import Response
 
 from blueflow import exceptions
+from blueflow import permissions as bf_permissions
 
 try:
     from connectors.nessusimport.nessus_api import NessusConnection
@@ -51,7 +52,7 @@ class NessusBrowseViewSet(viewsets.ViewSet):
     #   permissions causes an error.  We solve this by removing the
     #   standard DjangoModelPermissions class and sticking with the
     #   simple IsAuthenticated class.
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
 
     def _action_history(
         self, nc, response: dict[str, str | None], request: request.Request

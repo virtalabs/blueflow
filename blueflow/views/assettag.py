@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, serializers, viewsets
 from rest_framework.fields import IntegerField
 
+from blueflow import permissions as bf_permissions
 from blueflow.models import AssetTag
 
 from .tag import TagSerializer
@@ -34,6 +35,6 @@ class AssetTagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
     """An AssetTag links a tag to an asset."""
 
     queryset = AssetTag.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = AssetTagSerializer
     pagination_class = HugeLimitOffsetPagination
