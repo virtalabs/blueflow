@@ -58,6 +58,7 @@ dev = [
     "celery-types",
     "types-netaddr",
     'types-django-filter',
+    'Werkzeug',
 ]
 
 [project.scripts]
