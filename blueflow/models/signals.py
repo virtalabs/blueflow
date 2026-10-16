@@ -12,4 +12,5 @@ def create_auth_token(sender, *, instance=None, created=False, **__):  # noqa: A
         return
 
     Token.objects.create(user=instance)
+    # by default all users get Viewer status on endpoints
     permissions.IsViewer.make_viewer(instance)
