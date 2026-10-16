@@ -9,10 +9,10 @@ MAX_PAGES = 1
 PAGE_SIZE = 10
 
 
-def test_viper_webhook(auth_client, celery_app):
+def test_viper_webhook(admin_client, celery_app):
     """Asserts our 202 response and call to the celery task."""
     with patch("blueflow.celery.tasks.viper_webhook.delay") as mock_viper_webhook:
-        response = auth_client.post(
+        response = admin_client.post(
             "/api/viper/webhook/",
             {
                 "callback": CALLBACK,
@@ -43,9 +43,9 @@ def test_viper_webhook(auth_client, celery_app):
         ) == datetime.datetime.fromisoformat("2026-01-02T00:00:00+00:00")
 
 
-def test_viper_webhook_bad_request(auth_client):
+def test_viper_webhook_bad_request(admin_client):
     """Ensure a bad request triggers the serializer."""
-    response = auth_client.post(
+    response = admin_client.post(
         "/api/viper/webhook/", {}, content_type="application/json"
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST, response.data

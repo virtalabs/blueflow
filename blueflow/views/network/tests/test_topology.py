@@ -8,16 +8,16 @@ TOPOLOGY_URL = "/api/network/topology/"
 
 
 def _get_topology_with_query(
-    auth_client, key: str, arg: list[str] | str, url: str = TOPOLOGY_URL
+    admin_client, key: str, arg: list[str] | str, url: str = TOPOLOGY_URL
 ) -> response.Response:
-    response = auth_client.get(url, {key: arg})
+    response = admin_client.get(url, {key: arg})
     return response
 
 
 @pytest.mark.django_db
-def test_topology_accepts_cidr_query(auth_client) -> None:
+def test_topology_accepts_cidr_query(admin_client) -> None:
     cidrs = ["198.51.100.0/24"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "assets" in data
@@ -25,11 +25,11 @@ def test_topology_accepts_cidr_query(auth_client) -> None:
 
 
 @pytest.mark.django_db
-def test_topology_cidr_query_responds_with_assets(auth_client) -> None:
+def test_topology_cidr_query_responds_with_assets(admin_client) -> None:
     a = baker.make("blueflow.Asset", hostname="test-mcgee")
     baker.make("blueflow.NetworkInterface", system=a, ipv4="192.51.32.4")
     cidrs = ["192.51.32.0/24"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "assets" in data
@@ -40,13 +40,13 @@ def test_topology_cidr_query_responds_with_assets(auth_client) -> None:
 
 
 @pytest.mark.django_db
-def test_topology_cidr_list_query_responds_with_assets(auth_client) -> None:
+def test_topology_cidr_list_query_responds_with_assets(admin_client) -> None:
     a = baker.make("blueflow.Asset", hostname="test-mcgee")
     baker.make("blueflow.NetworkInterface", system=a, ipv4="192.51.32.4")
     b = baker.make("blueflow.Asset", hostname="test-mcgee2")
     baker.make("blueflow.NetworkInterface", system=b, ipv4="197.52.33.5")
     cidrs = ["192.51.32.0/24", "197.52.0.0/16"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "assets" in data
@@ -59,14 +59,14 @@ def test_topology_cidr_list_query_responds_with_assets(auth_client) -> None:
 
 @pytest.mark.django_db
 def test_topology_cidr_list_query_responds_with_assets_and_network_rollup(
-    auth_client,
+    admin_client,
 ) -> None:
     a = baker.make("blueflow.Asset", hostname="test-mcgee")
     baker.make("blueflow.NetworkInterface", system=a, ipv4="192.51.32.4")
     b = baker.make("blueflow.Asset", hostname="test-mcgee2")
     baker.make("blueflow.NetworkInterface", system=b, ipv4="197.52.33.5")
     cidrs = ["192.51.32.0/24", "197.52.0.0/16"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "assets" in data
@@ -93,7 +93,7 @@ def test_topology_cidr_list_query_responds_with_assets_and_network_rollup(
 
 @pytest.mark.django_db
 def test_topology_cidr_list_query_responds_with_network_rollup_and_connections(
-    auth_client,
+    admin_client,
     make_assets,
     make_system_requests,
 ) -> None:
@@ -104,7 +104,7 @@ def test_topology_cidr_list_query_responds_with_network_rollup_and_connections(
     make_system_requests(senders, receivers)
 
     cidrs = ["192.23.0.0/16", "10.11.0.0/16"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "assets" in data
@@ -131,11 +131,11 @@ def test_topology_cidr_list_query_responds_with_network_rollup_and_connections(
 
 
 @pytest.mark.django_db
-def test_topology_cidr_list_query_responds_with_unique_assets(auth_client) -> None:
+def test_topology_cidr_list_query_responds_with_unique_assets(admin_client) -> None:
     a = baker.make("blueflow.Asset", hostname="test-mcgee")
     baker.make("blueflow.NetworkInterface", system=a, ipv4="192.51.32.4")
     cidrs = ["192.51.32.0/24", "192.51.0.0/16"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "assets" in data
@@ -146,9 +146,9 @@ def test_topology_cidr_list_query_responds_with_unique_assets(auth_client) -> No
 
 
 @pytest.mark.django_db
-def test_topology_accepts_network_query(auth_client) -> None:
+def test_topology_accepts_network_query(admin_client) -> None:
     network = "ER"
-    response = _get_topology_with_query(auth_client, "network", network)
+    response = _get_topology_with_query(admin_client, "network", network)
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "query" in data
@@ -157,21 +157,21 @@ def test_topology_accepts_network_query(auth_client) -> None:
 
 
 @pytest.mark.django_db
-def test_topology_accepts_scope_query(auth_client) -> None:
+def test_topology_accepts_scope_query(admin_client) -> None:
     scope = "boundary"
-    response = _get_topology_with_query(auth_client, "scope", scope)
+    response = _get_topology_with_query(admin_client, "scope", scope)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_topology_accepts_empty_query(auth_client) -> None:
-    response = auth_client.get(TOPOLOGY_URL)
+def test_topology_accepts_empty_query(admin_client) -> None:
+    response = admin_client.get(TOPOLOGY_URL)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_topology_response_keys(auth_client) -> None:
-    response = auth_client.get(TOPOLOGY_URL)
+def test_topology_response_keys(admin_client) -> None:
+    response = admin_client.get(TOPOLOGY_URL)
     assert response.status_code == status.HTTP_200_OK
     required_keys = [
         "schema_version",
@@ -191,7 +191,7 @@ def test_topology_response_keys(auth_client) -> None:
 
 @pytest.mark.django_db
 def test_topology_response_contains_connections(
-    auth_client, make_assets, make_system_requests
+    admin_client, make_assets, make_system_requests
 ):
     sender_ips = ["192.23.42.1", "192.23.42.2"]
     senders = make_assets(sender_ips)
@@ -200,7 +200,7 @@ def test_topology_response_contains_connections(
     make_system_requests(senders, receivers)
 
     cidrs = ["192.23.0.0/16", "10.11.0.0/16"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -219,7 +219,7 @@ def test_topology_response_contains_connections(
 
 @pytest.mark.django_db
 def test_topology_response_contains_external(
-    auth_client, make_assets, make_system_requests
+    admin_client, make_assets, make_system_requests
 ):
     sender_ips = ["192.23.42.1", "192.23.42.2"]
     senders = make_assets(sender_ips)
@@ -228,7 +228,7 @@ def test_topology_response_contains_external(
     make_system_requests(senders, receivers)
 
     cidrs = ["192.23.0.0/16"]
-    response = _get_topology_with_query(auth_client, "cidrs", cidrs)
+    response = _get_topology_with_query(admin_client, "cidrs", cidrs)
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -252,7 +252,7 @@ def test_topology_response_contains_external(
 
 @pytest.mark.django_db
 def test_topology_response_scoped_to_boundary_contains_external(
-    auth_client, make_assets, make_system_requests
+    admin_client, make_assets, make_system_requests
 ):
     sender_ips = ["192.23.42.1", "192.23.42.2"]
     senders = make_assets(sender_ips)
@@ -262,7 +262,7 @@ def test_topology_response_scoped_to_boundary_contains_external(
 
     cidrs = ["192.23.0.0/16"]
     query = {"cidrs": cidrs, "scope": constants.ScopeChoices.boundary}
-    response = auth_client.get(TOPOLOGY_URL, query)
+    response = admin_client.get(TOPOLOGY_URL, query)
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -286,7 +286,7 @@ def test_topology_response_scoped_to_boundary_contains_external(
 
 @pytest.mark.django_db
 def test_topology_response_scoped_to_internal_does_not_contain_external(
-    auth_client, make_assets, make_system_requests
+    admin_client, make_assets, make_system_requests
 ):
     sender_ips = ["192.23.42.1", "192.23.42.2"]
     senders = make_assets(sender_ips)
@@ -296,7 +296,7 @@ def test_topology_response_scoped_to_internal_does_not_contain_external(
 
     cidrs = ["192.23.0.0/16"]
     query = {"cidrs": cidrs, "scope": constants.ScopeChoices.internal}
-    response = auth_client.get(TOPOLOGY_URL, query)
+    response = admin_client.get(TOPOLOGY_URL, query)
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()

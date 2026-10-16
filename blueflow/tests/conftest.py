@@ -12,50 +12,50 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from blueflow import models
-from blueflow.tests.factories import make_user
+from blueflow.tests.factories import make_superuser
 
 # ---------------------------------------------------------------------------
-# Role-scoped API clients (alias to auth_client when no per-resource perms)
+# Role-scoped API clients (alias to admin_client when no per-resource perms)
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture
-def asset_edit_client(auth_client):
+def asset_edit_client(admin_client):
     """Return API client with user that can create/edit assets.
 
-    Alias to auth_client in blueflow.
+    Alias to admin_client in blueflow.
     """
-    return auth_client
+    return admin_client
 
 
 @pytest.fixture
-def nwk_authorized_client(auth_client):
+def nwk_authorized_client(admin_client):
     """Return API client with user allowed to manage networks.
 
-    Alias to auth_client in blueflow.
+    Alias to admin_client in blueflow.
     """
-    return auth_client
+    return admin_client
 
 
 @pytest.fixture
-def biomed_client(auth_client):
-    """Return API client with biomed role. Alias to auth_client in blueflow."""
-    return auth_client
+def biomed_client(admin_client):
+    """Return API client with biomed role. Alias to admin_client in blueflow."""
+    return admin_client
 
 
 @pytest.fixture
-def custom_field_edit_client(auth_client):
+def custom_field_edit_client(admin_client):
     """Return API client with user allowed to edit custom field names.
 
-    Alias to auth_client in blueflow.
+    Alias to admin_client in blueflow.
     """
-    return auth_client
+    return admin_client
 
 
 @pytest.fixture
 def token_auth_client(db):
     """Return API client authenticated via Token header."""
-    user = make_user(username="scanner")
+    user = make_superuser(username="scanner")
     token, _ = Token.objects.get_or_create(user=user)
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
