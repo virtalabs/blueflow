@@ -30,24 +30,24 @@ def _upsert_payload(*, mac=None, manufacturer=None, hostname=None) -> dict[str, 
     return kwargs
 
 
-def test_get_empty_assets(auth_client: APIClient) -> None:
+def test_get_empty_assets(admin_client: APIClient) -> None:
     """Test that asset list is empty unless we do something special."""
-    assets = auth_client.get("/api/assets/")
+    assets = admin_client.get("/api/assets/")
     assert assets.data["count"] == 0
 
 
-def test_create_asset(auth_client: APIClient) -> None:
+def test_create_asset(admin_client: APIClient) -> None:
     """Creating an empty asset makes it available via the API."""
     _ = models.Asset.objects.create()
-    assets = auth_client.get("/api/assets/")
+    assets = admin_client.get("/api/assets/")
     assert assets.status_code == status.HTTP_200_OK
     assert assets.data["count"] == 1
 
 
-def test_export_assets_json(auth_client: APIClient) -> None:
+def test_export_assets_json(admin_client: APIClient) -> None:
     """We can export assets to JSON."""
     _ = models.Asset.objects.create()
-    response = auth_client.get("/api/assets/", HTTP_ACCEPT="application/json")
+    response = admin_client.get("/api/assets/", HTTP_ACCEPT="application/json")
     assert response.status_code == status.HTTP_200_OK
     assert response.data["count"] == 1
     assert response.json()
@@ -114,7 +114,7 @@ def test_api_create_asset_empty_mac_rejected(asset_edit_client: APIClient) -> No
 
 
 def test_api_create_get_asset(
-    auth_client: APIClient, asset_edit_client: APIClient
+    admin_client: APIClient, asset_edit_client: APIClient
 ) -> None:
     """Create an asset, read with less-authorized client."""
     payload = _upsert_payload()
@@ -124,14 +124,14 @@ def test_api_create_get_asset(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_201_CREATED
-    assets = auth_client.get("/api/assets/")
+    assets = admin_client.get("/api/assets/")
     assert assets.data["count"] == 1
     asset = assets.data["results"].pop()
     assert asset["hostname"] == payload["hostname"]
 
 
 def test_api_create_patch_asset(
-    auth_client: APIClient, asset_edit_client: APIClient
+    admin_client: APIClient, asset_edit_client: APIClient
 ) -> None:
     """Create an asset, then patch."""
     payload = _upsert_payload(mac="00:1a:1e:12:af:38")
@@ -151,38 +151,38 @@ def test_api_create_patch_asset(
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.data["hostname"] == new_name
-    assets = auth_client.get("/api/assets/")
+    assets = admin_client.get("/api/assets/")
     assert assets.data["count"] == 1
     asset = assets.data["results"].pop()
     assert asset["hostname"] == new_name
 
 
-def test_create_many_assets(auth_client: APIClient) -> None:
+def test_create_many_assets(admin_client: APIClient) -> None:
     """Creating multiple assets makes them available via the API."""
     asset_names = ["foo", "bar", "baz", "xyzzy", "spam", "ham", "eggs"]
     for name in asset_names:
         _ = models.Asset.objects.create(name=name)
-    assets = auth_client.get("/api/assets/")
+    assets = admin_client.get("/api/assets/")
     assert assets.data["count"] == len(asset_names)
 
 
-def test_retrieve_one_asset(auth_client: APIClient) -> None:
+def test_retrieve_one_asset(admin_client: APIClient) -> None:
     """Creating an asset makes it available via the API."""
     asset_names = ["foo", "bar", "baz", "xyzzy", "spam", "ham", "eggs"]
     for hostname in asset_names:
         _ = models.Asset.objects.create(hostname=hostname)
-    assets = auth_client.get("/api/assets/?hostname__icontains=xyzzy")
+    assets = admin_client.get("/api/assets/?hostname__icontains=xyzzy")
     assert assets.data["count"] == 1
     assert len(assets.data["results"]) == 1
 
 
-def test_one_asset_details(auth_client: APIClient) -> None:
+def test_one_asset_details(admin_client: APIClient) -> None:
     """Creating an asset makes its details available via the API."""
     asset_names = ["foo", "bar", "baz", "xyzzy", "spam", "ham", "eggs"]
     for hostname in asset_names:
         _ = models.Asset.objects.create(hostname=hostname)
     # Note alternative query syntax
-    assets = auth_client.get("/api/assets/", {"hostname__icontains": "xyzzy"})
+    assets = admin_client.get("/api/assets/", {"hostname__icontains": "xyzzy"})
     asset = assets.data["results"].pop()
     assert asset["hostname"] == "xyzzy"
 
@@ -227,19 +227,19 @@ def test_set_name_null(asset_edit_client: APIClient) -> None:
     assert spam_asset.hostname is None
 
 
-def test_fetch_by_os(auth_client: APIClient) -> None:
+def test_fetch_by_os(admin_client: APIClient) -> None:
     """Assets can be fetched by OS field."""
     a1 = models.Asset.objects.create(os="Windows XP")
     a2 = models.Asset.objects.create(os="WinXP")
     a3 = models.Asset.objects.create(os="XP")
 
-    response = auth_client.get("/api/assets/?os__iexact=XP")
+    response = admin_client.get("/api/assets/?os__iexact=XP")
     assert response.status_code == status.HTTP_200_OK
     js = response.json()
     assert js["count"] == 1
     assert js["results"][0]["id"] == a3.id
 
-    response = auth_client.get("/api/assets/?os__icontains=XP")
+    response = admin_client.get("/api/assets/?os__icontains=XP")
     assert response.status_code == status.HTTP_200_OK
     js = response.json()
     expected_count = 3
@@ -247,7 +247,7 @@ def test_fetch_by_os(auth_client: APIClient) -> None:
     ids = {x["id"] for x in js["results"]}
     assert ids == {a1.id, a2.id, a3.id}
 
-    response = auth_client.get("/api/assets/?os__istartswith=win")
+    response = admin_client.get("/api/assets/?os__istartswith=win")
     assert response.status_code == status.HTTP_200_OK
     js = response.json()
     expected_count_2 = 2
@@ -430,7 +430,7 @@ def test_upsert_bad_key_ignored(asset_edit_client: APIClient) -> None:
     ],
 )
 def test_asset_date_range(
-    date_range: str, num_assets: int, auth_client: APIClient
+    date_range: str, num_assets: int, admin_client: APIClient
 ) -> None:
     """Test that we can get assets from different date ranges.
 
@@ -459,13 +459,13 @@ def test_asset_date_range(
     with freeze_time("2018-05-14 12:00:00", tz_offset=0):
         models.Asset.objects.create(name="this_year")
 
-    res = auth_client.get("/api/assets/")
+    res = admin_client.get("/api/assets/")
     assert res.status_code == status.HTTP_200_OK
     total_assets = 7
     assert res.data["count"] == total_assets
 
     with freeze_time("2018-06-30 13:00:00", tz_offset=0):
-        res = auth_client.get(f"/api/assets/?date_range={date_range}")
+        res = admin_client.get(f"/api/assets/?date_range={date_range}")
         assert res.data["count"] == num_assets
 
 

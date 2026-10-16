@@ -3,9 +3,9 @@
 from rest_framework import status
 
 
-def test_api_assets_empty(auth_client):
+def test_api_assets_empty(admin_client):
     """Asset list is empty by default."""
-    response = auth_client.get("/api/assets/")
+    response = admin_client.get("/api/assets/")
     assert response.status_code == status.HTTP_200_OK
     if isinstance(response.data, list):
         assert len(response.data) == 0
