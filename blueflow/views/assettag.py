@@ -31,7 +31,7 @@ class AssetTagSerializer(serializers.ModelSerializer):
 
 
 @extend_schema(exclude=True)
-class AssetTagViewSet(ChangeReasonMixin, viewsets.ModelViewSet, base.IsGatedMixin):
+class AssetTagViewSet(base.IsGatedMixin, ChangeReasonMixin, viewsets.ModelViewSet):
     """An AssetTag links a tag to an asset."""
 
     queryset = AssetTag.objects.all()

@@ -6,7 +6,7 @@ from blueflow import queries, serializers
 from blueflow.views import base
 
 
-class Topology(generics.ListAPIView, base.IsGatedMixin):
+class Topology(base.IsGatedMixin, generics.ListAPIView):
     """Provide data related to topology."""
 
     def list(self, req: request.Request) -> response.Response:

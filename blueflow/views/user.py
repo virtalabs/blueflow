@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 @extend_schema(exclude=True)
-class UserViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
+class UserViewSet(base.IsGatedMixin, viewsets.ModelViewSet):
     """API endpoint that allows users to be viewed or edited."""
 
     queryset = User.objects.all()

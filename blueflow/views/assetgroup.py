@@ -50,7 +50,7 @@ class AssetGroupFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class AssetGroupViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
+class AssetGroupViewSet(base.IsGatedMixin, viewsets.ModelViewSet):
     """An AssetGroup links a group to an asset."""
 
     queryset = AssetGroup.objects.all()

@@ -6,7 +6,7 @@ from blueflow import models, serializers
 from blueflow.views import base
 
 
-class Telemetry(generics.GenericAPIView, base.IsGatedMixin):
+class Telemetry(base.IsGatedMixin, generics.GenericAPIView):
     """Telemtry manages all endpoints related to collecting network telemetry data."""
 
     @transaction.atomic

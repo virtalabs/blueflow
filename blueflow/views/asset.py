@@ -102,9 +102,9 @@ class AssetFilter(django_filters.rest_framework.FilterSet):
 
 
 class AssetViewSet(
+    base.IsGatedMixin,
     utils.PaginateRelationsMixin,
     viewsets.ModelViewSet,
-    base.IsGatedMixin,
 ):
     """API endpoint for an Asset (representing a networked device).
 
