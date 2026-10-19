@@ -7,6 +7,7 @@ from rest_framework import permissions, request
 
 class IsPermission(permissions.BasePermission):
     key: str = ""
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods
     methods: abc.Sequence[str] = ("",)
 
     @classmethod
@@ -43,10 +44,27 @@ class IsViewer(IsPermission):
 
 
 class IsBiomedical(IsPermission):
-    """Defines the biomedical eng permission."""
+    """Defines the biomedical eng permission.
+
+    Bio will _generally_ have access to most things. Save some admin
+    specific duties. (user creation?).
+    """
 
     key = "Biomedical"
-    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods
+    methods = (*permissions.SAFE_METHODS, "POST", "PUT", "DELETE")
+
+    @classmethod
+    def make_biomedical(cls, user: models.User):
+        cls.make(user)
+
+
+class IsAdmin(IsPermission):
+    """Defines the admin permission.
+
+    Admins should have unrestricted access.
+    """
+
+    key = "Admin"
     methods = (*permissions.SAFE_METHODS, "POST", "PUT", "DELETE")
 
     @classmethod
