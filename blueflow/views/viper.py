@@ -12,7 +12,6 @@ import drf_spectacular.utils as drf_spectacular
 from rest_framework import (
     decorators,
     parsers,
-    permissions,
     request,
     response,
     serializers,
@@ -21,8 +20,8 @@ from rest_framework import (
 )
 
 from blueflow import models
-from blueflow import permissions as bf_permissions
 from blueflow.celery import tasks
+from blueflow.views import base
 
 
 class ViperWebhookSerializer(serializers.Serializer):
@@ -39,13 +38,9 @@ class ViperWebhookResponseSerilizer(serializers.Serializer):
     request_id = serializers.CharField()
 
 
-class ViperViewSet(viewsets.ViewSet):
+class ViperViewSet(viewsets.ViewSet, base.IsGatedMixin):
     """ViewSet for the Viper integration."""
 
-    permission_classes: typing.ClassVar = (
-        permissions.IsAuthenticated,
-        bf_permissions.IsViewer,
-    )
     parser_classes: typing.ClassVar = [parsers.JSONParser]
     serializer_class: typing.ClassVar = ViperWebhookSerializer
 

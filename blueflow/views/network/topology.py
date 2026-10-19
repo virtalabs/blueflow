@@ -1,15 +1,13 @@
 from datetime import UTC, datetime
 
-from rest_framework import generics, permissions, request, response, status
+from rest_framework import generics, request, response, status
 
-from blueflow import permissions as bf_permissions
 from blueflow import queries, serializers
+from blueflow.views import base
 
 
-class Topology(generics.ListAPIView):
+class Topology(generics.ListAPIView, base.IsGatedMixin):
     """Provide data related to topology."""
-
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
 
     def list(self, req: request.Request) -> response.Response:
         """Provide a list containing all assets in a given cidr range.

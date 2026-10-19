@@ -7,14 +7,14 @@ import django_filters
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, serializers, status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from simple_history import utils as hist_utils
 
-from blueflow import permissions as bf_permissions
 from blueflow.models import Asset, AssetTag, Tag
 from blueflow.utils import iterable
+from blueflow.views import base
 
 from .utils import ChangeReasonMixin, HugeLimitOffsetPagination
 
@@ -86,11 +86,10 @@ class TagFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
+class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet, base.IsGatedMixin):
     """Free-text tag associated with one or more assets."""
 
     queryset = Tag.objects.order_by("name")
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = TagSerializer
     filterset_class = TagFilter
     pagination_class = HugeLimitOffsetPagination

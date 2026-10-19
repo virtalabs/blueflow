@@ -2,11 +2,11 @@
 
 import logging
 
-from rest_framework import permissions, request, serializers, status, viewsets
+from rest_framework import request, serializers, status, viewsets
 from rest_framework.response import Response
 
 from blueflow import exceptions
-from blueflow import permissions as bf_permissions
+from blueflow.views import base
 
 try:
     from connectors.nessusimport.nessus_api import NessusConnection
@@ -33,7 +33,7 @@ class NessusBrowseSerializer(serializers.Serializer):
         raise serializers.ValidationError(msg)
 
 
-class NessusBrowseViewSet(viewsets.ViewSet):
+class NessusBrowseViewSet(viewsets.ViewSet, base.IsGatedMixin):
     """Interact with Nessus.
 
     This API will be used to interact with Nessus, browse 'scans' and
@@ -41,18 +41,6 @@ class NessusBrowseViewSet(viewsets.ViewSet):
     """
 
     serializer = NessusBrowseSerializer
-    # NOTE: if we want to use a "permission" (e.g., "edit connector" or
-    #   "edit connectortask" for this we have to implement something
-    #   custom.  The regular permissions are closely tied to a
-    #   model... which we don't have.
-    #
-    #   More specifically: Since this ViewSet doesn't have a proper
-    #   queryset/associated model, it's not possible to check for
-    #   permissions the automatic/Django way -- even checking the
-    #   permissions causes an error.  We solve this by removing the
-    #   standard DjangoModelPermissions class and sticking with the
-    #   simple IsAuthenticated class.
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
 
     def _action_history(
         self, nc, response: dict[str, str | None], request: request.Request

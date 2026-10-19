@@ -4,9 +4,9 @@ import logging
 
 from django.contrib.auth.models import User
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, serializers, viewsets
+from rest_framework import serializers, viewsets
 
-from blueflow import permissions as bf_permissions
+from blueflow.views import base
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 @extend_schema(exclude=True)
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
     """API endpoint that allows users to be viewed or edited."""
-
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
 
     queryset = User.objects.all()
     serializer_class = UserSerializer

@@ -8,14 +8,14 @@ import netfields
 from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import timezone
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from simple_history import utils as hist_utils
 
 from blueflow import models, serializers
-from blueflow import permissions as bf_permissions
+from blueflow.views import base
 
 from . import utils
 
@@ -104,6 +104,7 @@ class AssetFilter(django_filters.rest_framework.FilterSet):
 class AssetViewSet(
     utils.PaginateRelationsMixin,
     viewsets.ModelViewSet,
+    base.IsGatedMixin,
 ):
     """API endpoint for an Asset (representing a networked device).
 
@@ -138,7 +139,6 @@ class AssetViewSet(
         .prefetch_related("request_receivers__request")
         .prefetch_related("interface")
     )
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = serializers.AssetRequestSerializer
 
     # Documentation on search filters:

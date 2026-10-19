@@ -4,12 +4,12 @@ import typing
 
 import django_filters
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, serializers, status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.fields import IntegerField
 from rest_framework.generics import get_object_or_404
 
-from blueflow import permissions as bf_permissions
 from blueflow.models import AssetGroup
+from blueflow.views import base
 
 from .group import GroupSerializer
 from .utils import HugeLimitOffsetPagination
@@ -50,11 +50,10 @@ class AssetGroupFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class AssetGroupViewSet(viewsets.ModelViewSet):
+class AssetGroupViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
     """An AssetGroup links a group to an asset."""
 
     queryset = AssetGroup.objects.all()
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = AssetGroupSerializer
     filterset_class = AssetGroupFilter
     pagination_class = HugeLimitOffsetPagination
