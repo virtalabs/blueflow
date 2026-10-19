@@ -68,5 +68,5 @@ class IsAdmin(IsPermission):
     methods = (*permissions.SAFE_METHODS, "POST", "PUT", "DELETE")
 
     @classmethod
-    def make_biomedical(cls, user: models.User):
+    def make_admin(cls, user: models.User):
         cls.make(user)

@@ -1,4 +1,4 @@
-"""Tests for the Viewer and Biomedical group permissions."""
+"""Tests for the Viewer, Biomedical, and Admin group permissions."""
 
 import pytest
 from django import urls
@@ -33,6 +33,7 @@ GET_CASES = [c for c in CASES if c[0] == "get"]
 WRITE_CASES = [c for c in CASES if c[0] != "get"]
 BIOMED_WRITE_CASES = [c for c in WRITE_CASES if c[0] in {"post", "put", "delete"}]
 PATCH_CASES = [c for c in WRITE_CASES if c[0] == "patch"]
+ADMIN_CASES = [c for c in CASES if c[0] != "patch"]
 
 
 @pytest.fixture
@@ -90,3 +91,25 @@ def test_biomedical_can_write(biomedical_client, method, url):
 def test_biomedical_cannot_patch(biomedical_client, method, url):
     response = getattr(biomedical_client, method)(url, {}, format="json")
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.fixture
+def admin_role_client(db):
+    user = factories.make_user()
+    user.groups.clear()
+    permissions.IsAdmin.make(user)
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
+
+
+@pytest.mark.parametrize(("method", "url"), ADMIN_CASES)
+def test_admin_can_do_anything(admin_role_client, method, url):
+    response = getattr(admin_role_client, method)(url, {}, format="json")
+    assert response.status_code not in DENIED
+
+
+@pytest.mark.parametrize("url", sorted({url for _, url in CASES}))
+def test_admin_can_head(admin_role_client, url):
+    response = admin_role_client.head(url)
+    assert response.status_code not in DENIED
