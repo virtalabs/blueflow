@@ -1,11 +1,11 @@
 """Join table for assets and tags."""
 
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, serializers, viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.fields import IntegerField
 
-from blueflow import permissions as bf_permissions
 from blueflow.models import AssetTag
+from blueflow.views import base
 
 from .tag import TagSerializer
 from .utils import ChangeReasonMixin, HugeLimitOffsetPagination
@@ -31,10 +31,9 @@ class AssetTagSerializer(serializers.ModelSerializer):
 
 
 @extend_schema(exclude=True)
-class AssetTagViewSet(ChangeReasonMixin, viewsets.ModelViewSet):
+class AssetTagViewSet(ChangeReasonMixin, viewsets.ModelViewSet, base.IsGatedMixin):
     """An AssetTag links a tag to an asset."""
 
     queryset = AssetTag.objects.all()
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = AssetTagSerializer
     pagination_class = HugeLimitOffsetPagination

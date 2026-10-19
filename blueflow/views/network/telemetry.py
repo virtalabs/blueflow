@@ -1,15 +1,13 @@
 from django.db import transaction
 from django.forms import model_to_dict
-from rest_framework import generics, permissions, request, response, status
+from rest_framework import generics, request, response, status
 
 from blueflow import models, serializers
-from blueflow import permissions as bf_permissions
+from blueflow.views import base
 
 
-class Telemetry(generics.GenericAPIView):
+class Telemetry(generics.GenericAPIView, base.IsGatedMixin):
     """Telemtry manages all endpoints related to collecting network telemetry data."""
-
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
 
     @transaction.atomic
     def post(self, request: request.Request) -> response.Response:

@@ -7,13 +7,13 @@ import django_filters
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, serializers, status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from blueflow import permissions as bf_permissions
 from blueflow.models import Asset, AssetGroup, Group
 from blueflow.utils import iterable
+from blueflow.views import base
 
 from .utils import HugeLimitOffsetPagination
 
@@ -64,11 +64,10 @@ class GroupFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
     """Free-text group associated with one or more assets."""
 
     queryset = Group.objects.all()
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = GroupSerializer
     filterset_class = GroupFilter
     pagination_class = HugeLimitOffsetPagination

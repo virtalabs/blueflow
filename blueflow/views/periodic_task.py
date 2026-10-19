@@ -6,9 +6,9 @@ import typing
 import django_filters
 from django_celery_beat.models import CrontabSchedule, IntervalSchedule, PeriodicTask
 from drf_spectacular.utils import extend_schema_field
-from rest_framework import permissions, serializers, viewsets
+from rest_framework import serializers, viewsets
 
-from blueflow import permissions as bf_permissions
+from blueflow.views import base
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +39,10 @@ class CrontabScheduleSerializer(serializers.ModelSerializer):
         )
 
 
-class CrontabScheduleViewSet(viewsets.ModelViewSet):
+class CrontabScheduleViewSet(base.IsGatedMixin, viewsets.ModelViewSet):
     """Periodic (crontab) schedule."""
 
     queryset = CrontabSchedule.objects.all()
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = CrontabScheduleSerializer
 
 
@@ -70,11 +69,10 @@ class IntervalScheduleSerializer(serializers.ModelSerializer):
         )
 
 
-class IntervalScheduleViewSet(viewsets.ModelViewSet):
+class IntervalScheduleViewSet(base.IsGatedMixin, viewsets.ModelViewSet):
     """Periodic (interval) schedule."""
 
     queryset = IntervalSchedule.objects.all()
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = IntervalScheduleSerializer
 
 
@@ -178,11 +176,10 @@ class PeriodicTaskFilter(django_filters.rest_framework.FilterSet):
         }
 
 
-class PeriodicTaskViewSet(viewsets.ModelViewSet):
+class PeriodicTaskViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
     """Periodic task."""
 
     queryset = PeriodicTask.objects.all()
-    permission_classes = (permissions.IsAuthenticated, bf_permissions.IsViewer)
     serializer_class = PeriodicTaskSerializer
 
     search_fields: typing.ClassVar = ["name"]
