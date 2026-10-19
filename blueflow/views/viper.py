@@ -38,7 +38,7 @@ class ViperWebhookResponseSerilizer(serializers.Serializer):
     request_id = serializers.CharField()
 
 
-class ViperViewSet(viewsets.ViewSet, base.IsGatedMixin):
+class ViperViewSet(base.IsGatedMixin, viewsets.ViewSet):
     """ViewSet for the Viper integration."""
 
     parser_classes: typing.ClassVar = [parsers.JSONParser]

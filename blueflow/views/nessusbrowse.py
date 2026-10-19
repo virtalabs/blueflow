@@ -33,7 +33,7 @@ class NessusBrowseSerializer(serializers.Serializer):
         raise serializers.ValidationError(msg)
 
 
-class NessusBrowseViewSet(viewsets.ViewSet, base.IsGatedMixin):
+class NessusBrowseViewSet(base.IsGatedMixin, viewsets.ViewSet):
     """Interact with Nessus.
 
     This API will be used to interact with Nessus, browse 'scans' and

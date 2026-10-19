@@ -176,7 +176,7 @@ class PeriodicTaskFilter(django_filters.rest_framework.FilterSet):
         }
 
 
-class PeriodicTaskViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
+class PeriodicTaskViewSet(base.IsGatedMixin, viewsets.ModelViewSet):
     """Periodic task."""
 
     queryset = PeriodicTask.objects.all()

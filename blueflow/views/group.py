@@ -64,7 +64,7 @@ class GroupFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class GroupViewSet(viewsets.ModelViewSet, base.IsGatedMixin):
+class GroupViewSet(base.IsGatedMixin, viewsets.ModelViewSet):
     """Free-text group associated with one or more assets."""
 
     queryset = Group.objects.all()

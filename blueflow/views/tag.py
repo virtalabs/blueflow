@@ -86,7 +86,7 @@ class TagFilter(django_filters.rest_framework.FilterSet):
 
 
 @extend_schema(exclude=True)
-class TagViewSet(ChangeReasonMixin, viewsets.ModelViewSet, base.IsGatedMixin):
+class TagViewSet(base.IsGatedMixin, ChangeReasonMixin, viewsets.ModelViewSet):
     """Free-text tag associated with one or more assets."""
 
     queryset = Tag.objects.order_by("name")
