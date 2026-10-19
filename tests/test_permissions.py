@@ -1,4 +1,4 @@
-"""Tests for the Viewer group default permissions."""
+"""Tests for the Viewer and Biomedical group permissions."""
 
 import pytest
 from django import urls
@@ -31,6 +31,17 @@ def _cases():
 CASES = list(_cases())
 GET_CASES = [c for c in CASES if c[0] == "get"]
 WRITE_CASES = [c for c in CASES if c[0] != "get"]
+BIOMED_WRITE_CASES = [c for c in WRITE_CASES if c[0] in {"post", "put", "delete"}]
+PATCH_CASES = [c for c in WRITE_CASES if c[0] == "patch"]
+
+
+@pytest.fixture
+def biomedical_client(db):
+    user = factories.make_user()
+    permissions.IsBiomedical.make_biomedical(user)
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
 
 
 @pytest.mark.parametrize("make", [factories.make_user, factories.make_superuser])
@@ -60,3 +71,22 @@ def test_superuser_bypasses_viewer(method, url):
     client.force_authenticate(user=user)
     response = getattr(client, method)(url, {}, format="json")
     assert response.status_code not in DENIED
+
+
+@pytest.mark.parametrize(("method", "url"), GET_CASES)
+def test_biomedical_can_get(biomedical_client, method, url):
+    response = getattr(biomedical_client, method)(url)
+    assert response.status_code not in DENIED
+    assert response.status_code < status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@pytest.mark.parametrize(("method", "url"), BIOMED_WRITE_CASES)
+def test_biomedical_can_write(biomedical_client, method, url):
+    response = getattr(biomedical_client, method)(url, {}, format="json")
+    assert response.status_code not in DENIED
+
+
+@pytest.mark.parametrize(("method", "url"), PATCH_CASES)
+def test_biomedical_cannot_patch(biomedical_client, method, url):
+    response = getattr(biomedical_client, method)(url, {}, format="json")
+    assert response.status_code == status.HTTP_403_FORBIDDEN
