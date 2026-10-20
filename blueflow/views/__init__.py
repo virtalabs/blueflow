@@ -5,6 +5,7 @@ from blueflow.serializers import AssetRequestSerializer
 from .asset import AssetViewSet
 from .assetgroup import AssetGroupSerializer, AssetGroupViewSet
 from .assettag import AssetTagSerializer, AssetTagViewSet
+from .auth import LoginView, RegisterView
 from .group import GroupSerializer, GroupViewSet
 from .network import Telemetry, Topology
 from .periodic_task import (
@@ -32,8 +33,10 @@ __all__ = [
     "GroupViewSet",
     "IntervalScheduleSerializer",
     "IntervalScheduleViewSet",
+    "LoginView",
     "PeriodicTaskSerializer",
     "PeriodicTaskViewSet",
+    "RegisterView",
     "TagSerializer",
     "TagViewSet",
     "Telemetry",

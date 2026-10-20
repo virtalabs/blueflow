@@ -35,4 +35,6 @@ urlpatterns = [
     urls.path("", urls.include(router.urls)),
     urls.path("network/topology/", views.Topology.as_view(), name="topology"),
     urls.path("network/telemetry/", views.Telemetry.as_view(), name="telemetry"),
+    urls.path("auth/login/", views.LoginView.as_view(), name="login"),
+    urls.path("auth/register/", views.RegisterView.as_view(), name="register"),
 ]
