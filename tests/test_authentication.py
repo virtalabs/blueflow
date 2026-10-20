@@ -1,8 +1,10 @@
 """Define a suite of tests to ensure authentication is followed on all viewsets."""
 
 import pytest
+from django.contrib import auth
 from rest_framework.authtoken import models as rf_models
 
+from blueflow import permissions
 from blueflow.tests import factories
 
 ROUTER_PREFIXES = (
@@ -119,3 +121,73 @@ def test_login_invalid_payload_returns_400(client, payload):
     """Payloads failing serializer validation are rejected."""
     response = _login(client, **payload)
     assert response.status_code == 400
+
+
+REGISTER_URL = "/api/auth/register/"
+VIEWER = permissions.IsViewer.key
+
+
+def _register(client, **payload):
+    return client.post(REGISTER_URL, payload, content_type="application/json")
+
+
+def _groups(user):
+    return set(user.groups.values_list("name", flat=True))
+
+
+@pytest.mark.parametrize(
+    ("role", "expected"),
+    [
+        ("viewer", {VIEWER}),
+        ("bio", {VIEWER, permissions.IsBiomedical.key}),
+        ("admin", {VIEWER, permissions.IsAdmin.key}),
+    ],
+)
+def test_register_role_assigns_groups(client, role, expected):
+    """Each role lands the new user in the matching group and returns a token."""
+    response = _register(client, username="newuser", password="newpass", role=role)
+    assert response.status_code == 200
+    user = auth.get_user_model().objects.get(username="newuser")
+    assert response.json() == {"token": rf_models.Token.objects.get(user=user).key}
+    assert _groups(user) == expected
+
+
+def test_register_default_role_is_viewer(client):
+    """Omitting the role registers a viewer."""
+    response = _register(client, username="newuser", password="newpass")
+    assert response.status_code == 200
+    assert _groups(auth.get_user_model().objects.get(username="newuser")) == {VIEWER}
+
+
+def test_register_password_allows_login(client):
+    """The registered password is persisted and usable for login."""
+    registered = _register(client, username="newuser", password="newpass")
+    response = _login(client, username="newuser", password="newpass")
+    assert response.status_code == 200
+    assert response.json() == registered.json()
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {},
+        {"username": "newuser"},
+        {"username": "", "password": "newpass"},
+        {"username": "abc", "password": "newpass"},
+        {"username": "newuser", "password": "abc"},
+        {"username": "newuser", "password": "newpass", "role": "superuser"},
+    ],
+    ids=[
+        "empty",
+        "missing-password",
+        "blank-username",
+        "short-username",
+        "short-password",
+        "unknown-role",
+    ],
+)
+def test_register_invalid_payload_returns_400(client, payload):
+    """Payloads failing serializer validation are rejected and create no user."""
+    response = _register(client, **payload)
+    assert response.status_code == 400
+    assert not auth.get_user_model().objects.exists()
