@@ -35,9 +35,9 @@ class LoginView(views.APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         user = shortcuts.get_object_or_404(
-            auth.get_user_model(), username=data.username
+            auth.get_user_model(), username=data["username"]
         )
-        authed = auth.authenticate(username=data.username, password=data.password)
+        authed = auth.authenticate(username=data["username"], password=data["password"])
         if authed is None:
             return response.Response(status=status.HTTP_401_UNAUTHORIZED)
         token = rf_models.Token.objects.get(user=user)
