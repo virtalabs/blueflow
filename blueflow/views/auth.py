@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import request, response, serializers, status, views
 from rest_framework.authtoken import models as rf_models
 
+from blueflow import permissions
+
 
 class Roles(models.TextChoices):
     admin = "admin", _("Administrator")
@@ -47,5 +49,20 @@ class LoginView(views.APIView):
 
 
 class RegisterView(views.APIView):
-    def post(self, _: request.Request) -> response.Response:
-        raise NotImplementedError
+    def post(self, request: request.Request) -> response.Response:
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        user = auth.get_user_model().objects.create(username=data["username"])
+        user.set_password(data["password"])
+        role = data["role"]
+        if role == Roles.admin:
+            permissions.IsAdmin.make_admin(user)
+        elif role == Roles.bio:
+            permissions.IsBiomedical.make_biomedical(user)
+        user.save()
+        user.refresh_from_db()
+        token = rf_models.Token.objects.get(user=user)
+        res = LoginResponseSerializer(data={"token": token.key})
+        res.is_valid(raise_exception=True)
+        return response.Response(res.validated_data, status=status.HTTP_200_OK)
