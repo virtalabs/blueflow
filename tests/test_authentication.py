@@ -135,6 +135,53 @@ def _groups(user):
     return set(user.groups.values_list("name", flat=True))
 
 
+def _newuser_exists():
+    return auth.get_user_model().objects.filter(username="newuser").exists()
+
+
+@pytest.fixture
+def registrar(client):
+    """Client logged in as a group-based (non-superuser) admin."""
+    user = factories.make_user(username="registrar")
+    permissions.IsAdmin.make_admin(user)
+    client.force_login(user)
+    return client
+
+
+def test_register_anonymous_returns_401(client):
+    """Anonymous requests cannot register users."""
+    response = _register(client, username="newuser", password="newpass")
+    assert response.status_code == 401
+    assert not _newuser_exists()
+
+
+@pytest.mark.parametrize(
+    "make_role",
+    [
+        lambda _: None,
+        permissions.IsViewer.make_viewer,
+        permissions.IsBiomedical.make_biomedical,
+    ],
+    ids=["no-role", "viewer", "bio"],
+)
+def test_register_non_admin_returns_403(client, make_role):
+    """Authenticated users without the admin role cannot register users."""
+    user = factories.make_user()
+    make_role(user)
+    client.force_login(user)
+    response = _register(client, username="newuser", password="newpass")
+    assert response.status_code == 403
+    assert not _newuser_exists()
+
+
+def test_register_superuser_allowed(client):
+    """Superusers bypass the group check and may register users."""
+    client.force_login(factories.make_superuser())
+    response = _register(client, username="newuser", password="newpass")
+    assert response.status_code == 200
+    assert _newuser_exists()
+
+
 @pytest.mark.parametrize(
     ("role", "expected"),
     [
@@ -143,26 +190,26 @@ def _groups(user):
         ("admin", {VIEWER, permissions.IsAdmin.key}),
     ],
 )
-def test_register_role_assigns_groups(client, role, expected):
+def test_register_role_assigns_groups(registrar, role, expected):
     """Each role lands the new user in the matching group and returns a token."""
-    response = _register(client, username="newuser", password="newpass", role=role)
+    response = _register(registrar, username="newuser", password="newpass", role=role)
     assert response.status_code == 200
     user = auth.get_user_model().objects.get(username="newuser")
     assert response.json() == {"token": rf_models.Token.objects.get(user=user).key}
     assert _groups(user) == expected
 
 
-def test_register_default_role_is_viewer(client):
+def test_register_default_role_is_viewer(registrar):
     """Omitting the role registers a viewer."""
-    response = _register(client, username="newuser", password="newpass")
+    response = _register(registrar, username="newuser", password="newpass")
     assert response.status_code == 200
     assert _groups(auth.get_user_model().objects.get(username="newuser")) == {VIEWER}
 
 
-def test_register_password_allows_login(client):
+def test_register_password_allows_login(registrar):
     """The registered password is persisted and usable for login."""
-    registered = _register(client, username="newuser", password="newpass")
-    response = _login(client, username="newuser", password="newpass")
+    registered = _register(registrar, username="newuser", password="newpass")
+    response = _login(registrar, username="newuser", password="newpass")
     assert response.status_code == 200
     assert response.json() == registered.json()
 
@@ -186,8 +233,8 @@ def test_register_password_allows_login(client):
         "unknown-role",
     ],
 )
-def test_register_invalid_payload_returns_400(client, payload):
+def test_register_invalid_payload_returns_400(registrar, payload):
     """Payloads failing serializer validation are rejected and create no user."""
-    response = _register(client, **payload)
+    response = _register(registrar, **payload)
     assert response.status_code == 400
-    assert not auth.get_user_model().objects.exists()
+    assert not _newuser_exists()
