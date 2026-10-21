@@ -49,6 +49,8 @@ class LoginView(views.APIView):
 
 
 class RegisterView(views.APIView):
+    permission_classes = (permissions.IsAdmin,)
+
     def post(self, request: request.Request) -> response.Response:
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
