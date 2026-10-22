@@ -21,7 +21,7 @@ If you would like to help and don't know where to begin, checkout the [issues pa
 
 # Contributing code
 
-Fix a bug, or add a new feature. You can make a pull request and see your code in the next version of Blueflow.
+You can make a pull request and see your code in the next version of Blueflow.
 
 ## Git strategy
 Blueflow follows a trunk based strategy. In effect this means that all feature and bug fix branches will need to be based on the current HEAD.
@@ -35,6 +35,9 @@ Currently, Blueflow is pre-1.0 and should be treated as in an unstable beta buil
 
 When a new version is published a [git tag](https://github.com/virtalabs/blueflow/tags) will be created. The tag will follow (semver 2.0)[https://semver.org/spec/v2.0.0.html].
 Once tagged, a docker build will be published with a matching version tag.
+
+Any changes that result in breaking external contracts will release on a marjor version bump.
+Django migrations are subject to change on minor version changes and are only guaranteed to be backwards compatible between major releases.
 
 Reference the [release page](https://github.com/virtalabs/blueflow/releases) for any details related to a specific release.
 
