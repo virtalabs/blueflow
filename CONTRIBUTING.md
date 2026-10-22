@@ -38,9 +38,20 @@ Once tagged a gh release will be made with all contributers automatically tagged
 
 Reference the [release page](https://github.com/virtalabs/blueflow/releases) for any details related to a specific release.
 
+## Etiquitte
+
+PRs must be made againt the latest HEAD on the default branch. The PR branch must be based on the latest changes and require no merges or rebasing.
+Any PR that fails automatic testing, fails to provide approporaite test coverage, or otherwise degrades the quality of the code is subject to rejection.
+
+Your code should be easily understandable with an appriorialty sized PR for the given issue.
+
+All PRs _must_ have a linked issue. Some issues the core team fixes may be private some may be public.
+Once your PR is created it may be subject to automated reviews from agentic tooling as well as approval from a core team member.
+
 # Reporting bugs and requesting features
 
-All bug reports should be assoicated with a github issue. This is regardless of how the bug was reported.
+All bug reports are expected to be assoicated with a github issue.
+For security related concerns please email security at virtalabs [dot] com
 
 # Responsible Use of AI-Generated Content
 
