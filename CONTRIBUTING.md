@@ -38,20 +38,19 @@ Once tagged, a docker build will be published with a matching version tag.
 
 Reference the [release page](https://github.com/virtalabs/blueflow/releases) for any details related to a specific release.
 
-## Etiquitte
+## Etiquette
 
-PRs must be made againt the latest HEAD on the default branch. The PR branch must be based on the latest changes and require no merges or rebasing.
-Any PR that fails automatic testing, fails to provide approporaite test coverage, or otherwise degrades the quality of the code is subject to rejection.
+PRs must target the default branch and be based on its latest changes. They must require no merges or rebase.
+Any PR that fails automatic testing, fails to provide appropriate test coverage, or otherwise degrades the quality of the code is subject to rejection.
 
-Your code should be easily understandable with an appriorialty sized PR for the given issue.
+Your code should be easily understandable, with a reasonably sized PR for the given issue.
 
-All PRs _must_ have a linked issue. Some issues the core team fixes may be private some may be public.
+All PRs _must_ have a linked issue. Some issues the core team fixes may be private, while some may be public.
 Once your PR is created it may be subject to automated reviews from agentic tooling as well as approval from a core team member.
 
 # Reporting bugs and requesting features
 
-All bug reports are expected to be assoicated with a github issue.
-For security related concerns please email security at virtalabs [dot] com
+All bug reports and feature requests should be associated with a GitHub issue, except security vulnerabilities, which should be emailed to security at virtalabs [dot] com.
 
 # Responsible Use of AI-Generated Content
 
@@ -66,4 +65,4 @@ These practices support a community built on trust, collaboration, and mutual re
 
 
 # License
-This document is licensed under and partially (or in whole) attributed to [share-alike](https://creativecommons.org/licenses/by-sa/4.0/)
+This document is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/)
