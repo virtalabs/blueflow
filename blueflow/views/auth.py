@@ -4,7 +4,7 @@ from django import shortcuts
 from django.contrib import auth
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from rest_framework import request, response, serializers, status, views
+from rest_framework import request, response, serializers, status, validators, views
 from rest_framework.authtoken import models as rf_models
 
 from blueflow import permissions
@@ -22,7 +22,16 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.Serializer):
-    username = serializers.CharField(allow_blank=False, min_length=5)
+    username = serializers.CharField(
+        allow_blank=False,
+        min_length=5,
+        validators=(
+            validators.UniqueValidator(
+                queryset=auth.get_user_model().objects.all(),
+                message="Username not avilable",
+            ),
+        ),
+    )
     password = serializers.CharField(allow_blank=False, min_length=5)
     role = serializers.ChoiceField(choices=Roles.choices, default=Roles.viewer)
 
