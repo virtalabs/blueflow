@@ -238,3 +238,12 @@ def test_register_invalid_payload_returns_400(registrar, payload):
     response = _register(registrar, **payload)
     assert response.status_code == 400
     assert not _newuser_exists()
+
+
+def test_register_duplicate_username_returns_400(registrar):
+    """An already-taken username is rejected and the existing user is untouched."""
+    factories.make_user(username="newuser")
+    response = _register(registrar, username="newuser", password="otherpass")
+    assert response.status_code == 400
+    assert "username" in response.json()
+    assert auth.get_user_model().objects.filter(username="newuser").count() == 1
