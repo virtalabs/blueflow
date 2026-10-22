@@ -17,7 +17,7 @@ Feel free to open an issue, email the core dev team, or otherwise contact [Virta
 
 Blueflow encourages and welcomes new contributors, and confident contributors to Open Source Software (OSS).
 
-If you would like to help and dont know where to begin checkout the [issues page](https://github.com/virtalabs/blueflow/issues).
+If you would like to help and don't know where to begin, checkout the [issues page](https://github.com/virtalabs/blueflow/issues).
 
 # Contributing code
 
@@ -31,10 +31,10 @@ Once a PR is approved these changes will be merged into the main branch for the 
 If your PR is approved it will automatically be included in the `latest` build for Blueflow.
 
 ## Versioning
-Currently Blueflow is pre-1.0. Blueflow should be treated as in an unstable beta build that is not fit for production or guranteed to be secure or stable.
+Currently, Blueflow is pre-1.0 and should be treated as in an unstable beta build that is not fit for production and is not guranteed to be secure or stable.
 
-When a new version is published a [git tag](https://github.com/virtalabs/blueflow/tags) will be created. The tag will follow (semver 2.0)[https://semver.org/spec/v2.0.0-rc.1.html].
-Once tagged a gh release will be made with all contributers automatically tagged as appropriate. Finally a docker build will be published with a matching version tag.
+When a new version is published a [git tag](https://github.com/virtalabs/blueflow/tags) will be created. The tag will follow (semver 2.0)[https://semver.org/spec/v2.0.0.html].
+Once tagged, a docker build will be published with a matching version tag.
 
 Reference the [release page](https://github.com/virtalabs/blueflow/releases) for any details related to a specific release.
 
@@ -62,5 +62,8 @@ When using generative AI to contribute to the community:
 Take ownership of your contributions. You are responsible for the content you share.
 Review and revise AI-generated responses before posting. Ensure they reflect your own understanding and voice.
 Apply your expertise to validate that the information is accurate, relevant, and helpful.
-These practices support a community built on trust, collaboration, and mutual respect. Misuse of AI-generated content is a violation of our Code of Conduct.
+These practices support a community built on trust, collaboration, and mutual respect
 
+
+# License
+This document is licensed under and partially (or in whole) attributed to [share-alike](https://creativecommons.org/licenses/by-sa/4.0/)
