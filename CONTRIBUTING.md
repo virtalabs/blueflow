@@ -36,8 +36,8 @@ Currently, Blueflow is pre-1.0 and should be treated as in an unstable beta buil
 When a new version is published a [git tag](https://github.com/virtalabs/blueflow/tags) will be created. The tag will follow (semver 2.0)[https://semver.org/spec/v2.0.0.html].
 Once tagged, a docker build will be published with a matching version tag.
 
-Any changes that result in breaking external contracts will release on a marjor version bump.
-Django migrations are subject to change on minor version changes and are only guaranteed to be backwards compatible between major releases.
+Any changes that result in breaking external contracts will release on a major version bump.
+Django migrations may change on minor releases and are only guaranteed to remain backwards compatible between major versions.
 
 Reference the [release page](https://github.com/virtalabs/blueflow/releases) for any details related to a specific release.
 
