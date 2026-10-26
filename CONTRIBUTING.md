@@ -1,5 +1,7 @@
 # Contributing to Blueflow
 
+Welcome to Blueflow! We're happy to have you here. Thank you in advance for your contribution.
+
 Blueflow is a community driven asset discovery tool. As it keeps growing, we always need more people to help others.
 You can contribute in many ways, either on the app itself or in the wider ecosystem.
 
