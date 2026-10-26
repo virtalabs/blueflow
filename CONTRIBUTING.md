@@ -51,6 +51,24 @@ Your code should be easily understandable, with a reasonably sized PR for the gi
 All PRs _must_ have a linked issue. Some issues the core team fixes may be private, while some may be public.
 Once your PR is created it may be subject to automated reviews from agentic tooling as well as approval from a core team member.
 
+## Environment
+
+Every development environment will require the following:
+
+1. a valid `.env` file
+2. a python virtualenv
+3. all dependencies installed from the [pyproject.toml]()
+4. a running PSQL server
+
+An exmaple .env can be found in the repo [here](https://github.com/virtalabs/blueflow/blob/develop/.env.example). Managing the virtualenv can be done with any tool of your choice but the contributors recomend using the latest version of [uv](https://docs.astral.sh/uv/) along with a context system like [direnv](https://direnv.net).
+It is recommended to install all dependencies for development, however dependencies are grouped if you wish fine-grained control.
+Finally, ensure the `.env` file you have points to the Postgres service as in the `.env.example`.
+
+A simple test to ensure you are setup correctly is to execute the following with no errors:
+1. `./project/manage.py migrate`
+2. `./project/manage.py runserver_plus`
+3. curl or visit `http://127.0.0.1:8000/api/`
+
 # Reporting bugs and requesting features
 
 All bug reports and feature requests should be associated with a GitHub issue, except security vulnerabilities, which should be emailed to security at virtalabs [dot] com.
@@ -66,6 +84,12 @@ Review and revise AI-generated responses before posting. Ensure they reflect you
 Apply your expertise to validate that the information is accurate, relevant, and helpful.
 These practices support a community built on trust, collaboration, and mutual respect
 
+# Contributors
+
+A thank you to everyone who has contributed:
+
+- t-a-y-l-o-r, for their work on Blueflow's core systems and managing everything django.
+- xnorkl, for his networking and information security knowledge that helps lead Blueflow's development.
 
 # License
 This document is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/)
