@@ -36,7 +36,7 @@ If your PR is approved it will automatically be included in the `latest` build f
 ## Versioning
 Currently, Blueflow is pre-1.0 and should be treated as in an unstable beta build that is not fit for production and is not guranteed to be secure or stable.
 
-When a new version is published a [git tag](https://github.com/virtalabs/blueflow/tags) will be created. The tag will follow (semver 2.0)[https://semver.org/spec/v2.0.0.html].
+When a new version is published a [git tag](https://github.com/virtalabs/blueflow/tags) will be created. The tag will follow [semver 2.0](https://semver.org/spec/v2.0.0.html).
 Once tagged, a docker build will be published with a matching version tag.
 
 Any changes that result in breaking external contracts will release on a major version bump.
