@@ -56,19 +56,11 @@ uv pip install -e ".[dev]"
 
 **Test layout**
 
-- **`tests/`** (project-level): Smoke and functional tests for the minimal project (schema, URL wiring, migrations). This is the default `pytest` collection target.
+- **`tests/`** (project-level): Smoke and functional tests for the minimal project (schema, URL wiring, migrations)
 - **`blueflow/tests/`** (app-level): Integration and functional tests for the blueflow app.
-
-**Run default tests** (excludes `@pytest.mark.contract`; see `contracts.yml` for contract lane)
 
 ```bash
 uv run pytest
-```
-
-**Run contract tests**
-
-```bash
-uv run pytest -m contract
 ```
 
 **Run only project-level tests**
@@ -86,7 +78,7 @@ uv run pytest blueflow/tests/
 **Run via Docker**
 
 ```bash
-docker-compose run web uv run pytest
+docker-compose run -e DJANGO_SETTINGS_MODULE=project.settings.test web uv run pytest
 ```
 
 ## Running blueflow standalone via Docker
