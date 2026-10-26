@@ -58,15 +58,15 @@ Once your PR is created it may be subject to automated reviews from agentic tool
 Every development environment will require the following:
 
 1. a valid `.env` file
-2. a python virtualenv
-3. all dependencies installed from the [pyproject.toml]()
-4. a running PSQL server
+2. a Python virtualenv
+3. all dependencies installed from the [pyproject.toml](https://github.com/virtalabs/blueflow/blob/develop/pyproject.toml)
+4. a running PostgreSQL server
 
-An exmaple .env can be found in the repo [here](https://github.com/virtalabs/blueflow/blob/develop/.env.example). Managing the virtualenv can be done with any tool of your choice but the contributors recomend using the latest version of [uv](https://docs.astral.sh/uv/) along with a context system like [direnv](https://direnv.net).
-It is recommended to install all dependencies for development, however dependencies are grouped if you wish fine-grained control.
+An example .env can be found in the repo [here](https://github.com/virtalabs/blueflow/blob/develop/.env.example). Managing the virtualenv can be done with any tool of your choice but the contributors recomend using the latest version of [uv](https://docs.astral.sh/uv/) along with a context system like [direnv](https://direnv.net).
+It is recommended to install all dependencies for development; however, dependencies are grouped if you wish fine-grained control.
 Finally, ensure the `.env` file you have points to the Postgres service as in the `.env.example`.
 
-A simple test to ensure you are setup correctly is to execute the following with no errors:
+A simple test to ensure you are set up correctly is to execute the following with no errors:
 1. `./project/manage.py migrate`
 2. `./project/manage.py runserver_plus`
 3. curl or visit `http://127.0.0.1:8000/api/`
@@ -90,7 +90,7 @@ These practices support a community built on trust, collaboration, and mutual re
 
 A thank you to everyone who has contributed:
 
-- t-a-y-l-o-r, for their work on Blueflow's core systems and managing everything django.
+- t-a-y-l-o-r, for their work on Blueflow's core systems and managing everything Django.
 - xnorkl, for his networking and information security knowledge that helps lead Blueflow's development.
 
 # License
