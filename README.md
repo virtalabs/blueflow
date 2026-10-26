@@ -12,6 +12,8 @@ For a more in-depth guide to development and testing refer to [DEVELOPMENT.md](h
 
 ## Issues
 
-To report a security issue with Blueflow email security [at] virtalabs [dot] com.
+> [!WARNING]
+> To report a security issue with Blueflow email security [at] virtalabs [dot] com.
 
-For all other issues please open a [GitHub issue](https://github.com/virtalabs/blueflow/issues).
+All other issues can be submitted via [GitHub issues](https://github.com/virtalabs/blueflow/issues).
+Please search to see if your issue already has an active discussion first.
