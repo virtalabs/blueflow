@@ -5,7 +5,8 @@ Welcome to Blueflow! We're happy to have you here. Thank you in advance for your
 Blueflow is a community driven asset discovery tool. As it keeps growing, we always need more people to help others.
 You can contribute in many ways, either on the app itself or in the wider ecosystem.
 
-For contributing to fingerprinting and the open source fingerprinting database see [tapirxl](https://github.com/virtalabs/tapirxl)
+> [!NOTE]
+> For contributing to fingerprinting and the open source fingerprinting database see [tapirxl](https://github.com/virtalabs/tapirxl)
 
 # Communication channels
 

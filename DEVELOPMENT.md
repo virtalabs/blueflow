@@ -10,6 +10,8 @@ Welcome to the development guide! Below you will find extra details on how to se
 
 Optional:
 - [just](https://github.com/casey/just), check the justfile for any shorthand versions of the scripts identified below
+- [direnv](https://direnv.net), an env var context manager.
+- [precommit](https://pre-commit.com) for ensuring your PRs wont fail QA checks.
 
 ## App identity
 
