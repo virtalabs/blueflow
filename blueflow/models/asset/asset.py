@@ -156,7 +156,16 @@ class Asset(system.System):
         Assumes prefetched as needed
         """
         services = {}
-        for r in self.requests.all():
+        for r in self.request_receivers.all():
+            port = int(r.request.port)
+            protocol = str(r.request.protocol)
+            name = str(r.request.service)
+            s: dict[str, str | list[str]] = services.setdefault(port, {})
+            p = s.setdefault("protocols", [])
+            p.append(protocol)
+            s["name"] = name
+            services[port] = s
+        for r in self.request_senders.all():
             port = int(r.request.port)
             protocol = str(r.request.protocol)
             name = str(r.request.service)
