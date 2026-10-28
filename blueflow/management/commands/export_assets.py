@@ -32,10 +32,12 @@ def allowed(asset: bf_models.Asset, attr: str) -> bool:
 
 def formatter(anything: typing.Any) -> str:
     match anything:
-        case datetime.datetime:
+        case datetime.datetime():
             return anything.isoformat()
-        case models.Model:
+        case models.Model():
             return str(anything.pk)
+        case None:
+            return ""
         case _:
             return str(anything)
 
@@ -73,7 +75,12 @@ class Command(base.BaseCommand):
         Asset = apps.get_model(app_label="blueflow", model_name="Asset")
         headers = get_headers(sample=Asset.objects.first())
         formatted_assets = []
-        raw_assets = Asset.objects.all()
+        raw_assets = (
+            Asset.objects.all()
+            .prefetch_related("request_receivers__request")
+            .prefetch_related("request_senders__request")
+            .prefetch_related("interface")
+        )
         for asset in raw_assets:
             a = list(fields(asset, headers))
             formatted_assets.append(a)
@@ -86,4 +93,4 @@ class Command(base.BaseCommand):
             writer.writerow(headers)
             writer.writerows(formatted_assets)
         count = Asset.objects.count()
-        print(f"{count} assets written to {file_path}")  # noqa: T201
+        self.stdout.write(f"{count} assets written to {file_path}")
