@@ -18,18 +18,6 @@ CollectedAssets = dict[str, Assets | abc.Generator[str]]
 DEFAULT_EXPORT = "/tmp/assets.csv"  # noqa: S108 # nosec
 
 
-def allowed(asset: bf_models.Asset, attr: str) -> bool:
-    bad = ["objects", "_meta", "_state", "asset"]
-    if attr in bad:
-        return False
-    if "__" in attr:
-        return False
-    if not attr.islower():
-        return False
-    is_callable = callable(getattr(asset, attr, None))
-    return not is_callable
-
-
 def formatter(anything: typing.Any) -> str:
     match anything:
         case datetime.datetime():
@@ -40,11 +28,6 @@ def formatter(anything: typing.Any) -> str:
             return ""
         case _:
             return str(anything)
-
-
-def get_headers(sample=None, allowed_fields=allowed) -> abc.Iterable[str]:
-    headers = [h for h in dir(sample) if allowed_fields(sample, h)]
-    return headers
 
 
 def fields(
@@ -73,7 +56,7 @@ class Command(base.BaseCommand):
 
     def handle(self, *_, **options) -> None:
         Asset = apps.get_model(app_label="blueflow", model_name="Asset")
-        headers = get_headers(sample=Asset.objects.first())
+        headers = [f.attname for f in Asset._meta.concrete_fields]  # noqa: SLF001
         formatted_assets = []
         raw_assets = (
             Asset.objects.all()
