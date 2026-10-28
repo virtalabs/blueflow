@@ -7,7 +7,6 @@ from django.core import management
 from model_bakery import baker
 
 from blueflow import models
-from blueflow.management.commands import export_assets
 
 
 def export(tmp_path) -> list[list[str]]:
@@ -36,13 +35,30 @@ def test_export_data_correct(db, tmp_path):
 
 
 def test_export_headers(db, tmp_path):
-    baker.make("Asset")
-    header = export(tmp_path)[0]
-    expected = export_assets.get_headers(sample=models.Asset.objects.first())
-    assert header == list(expected)
-    assert {"id", "name", "hostname", "last_scanned", "created"} <= set(header)
-    assert not {"objects", "_meta", "_state"} & set(header)
-    assert not [h for h in header if "__" in h]
+    # No assets: headers come from the schema, not a sample instance.
+    assert export(tmp_path) == [
+        [
+            "id",
+            "created",
+            "modified",
+            "system_ptr_id",
+            "name",
+            "hostname",
+            "oui_manufacturer",
+            "manufacturer",
+            "model",
+            "serial_number",
+            "udi",
+            "tag_number",
+            "category",
+            "owner",
+            "os",
+            "app_sw_version",
+            "last_scanned",
+            "last_pinged",
+            "external_keys",
+        ]
+    ]
 
 
 def test_export_none_is_empty_string(db, tmp_path):
