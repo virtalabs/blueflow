@@ -29,12 +29,13 @@ router.register(r"viper", views.ViperViewSet, basename="viper")
 
 
 urlpatterns = [
+    urls.path("", urls.include(router.urls)),
     urls.path("schema/", SpectacularAPIView.as_view(), name="schema"),
     urls.path("docs/", scalar_viewer, name="api-docs"),
-    urls.path(r"api-token-auth/", authview.obtain_auth_token, name="auth-token"),
-    urls.path("", urls.include(router.urls)),
+    urls.path("api-token-auth/", authview.obtain_auth_token, name="auth-token"),
     urls.path("network/topology/", views.Topology.as_view(), name="topology"),
     urls.path("network/telemetry/", views.Telemetry.as_view(), name="telemetry"),
+    urls.path("csv/", views.CsvView.as_view(), name="csv"),
     urls.path("auth/login/", views.LoginView.as_view(), name="login"),
     urls.path("auth/register/", views.RegisterView.as_view(), name="register"),
 ]
