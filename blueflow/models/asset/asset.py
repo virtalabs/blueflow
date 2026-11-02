@@ -3,8 +3,11 @@
 import datetime
 import logging
 import typing
+from collections import abc
 
 import netaddr
+from django.apps import apps
+from django.core import exceptions
 from django.db import models
 from simple_history import models as simple_history
 
@@ -19,6 +22,8 @@ from blueflow.models import (
 from . import system, util
 
 logger = logging.getLogger(__name__)
+
+Service = dict[str, str | list[str]]
 
 
 class Asset(system.System):
@@ -140,6 +145,54 @@ class Asset(system.System):
             ),
         )
 
+    @classmethod
+    def formatter(cls, anything: typing.Any) -> str:
+        match anything:
+            case datetime.datetime():
+                return anything.isoformat()
+            case models.Model():
+                return str(anything.pk)
+            case None:
+                return ""
+            case _:
+                return str(anything)
+
+    @classmethod
+    def _fields(
+        cls, a: "Asset", headers: abc.Iterable[str], formatter=None
+    ) -> abc.Generator[typing.Any]:
+        if not formatter:
+            formatter = cls.formatter
+        for h in headers:
+            try:
+                attr = getattr(a, h, None)
+                yield formatter(attr)
+            except exceptions.ObjectDoesNotExist:
+                yield None
+
+    @classmethod
+    def export(cls, delem=",") -> abc.Generator["str"]:
+
+        Asset = apps.get_model(app_label="blueflow", model_name="Asset")
+        headers = []
+        for f in Asset._meta.concrete_fields:  # noqa: SLF001
+            _f = str(f)
+            headers.append(_f)
+            yield f"{_f}{delem}"
+
+        yield "\n"
+
+        raw_assets = (
+            Asset.objects.all()
+            .prefetch_related("request_receivers__request")
+            .prefetch_related("request_senders__request")
+            .prefetch_related("interface")
+        )
+        for asset in raw_assets:
+            for value in cls._fields(asset, headers):
+                yield f"{value}{delem}"
+            yield "\n"
+
     @property
     def cpe(self) -> str:
         """Build this asset's CPE 2.3 string from manufacturer / model.
@@ -150,27 +203,35 @@ class Asset(system.System):
         return cpe.build_cpe(self)
 
     @property
-    def services(self) -> dict[int, list[str]]:
+    def services(self) -> dict[int, Service]:
         """A list of services associated with this asset.
 
         Assumes prefetched as needed
         """
-        services = {}
+        services: dict[int, Service] = {}
+
         for r in self.request_receivers.all():
             port = int(r.request.port)
             protocol = str(r.request.protocol)
             name = str(r.request.service)
-            s: dict[str, str | list[str]] = services.setdefault(port, {})
-            p = s.setdefault("protocols", [])
+            s: Service = services.setdefault(port, {})
+            p: list[str] | str = s.setdefault("protocols", [])
+            if isinstance(p, str):
+                msg = "protocols must be a list"
+                raise TypeError(msg)
             p.append(protocol)
             s["name"] = name
             services[port] = s
+
         for r in self.request_senders.all():
             port = int(r.request.port)
             protocol = str(r.request.protocol)
             name = str(r.request.service)
-            s: dict[str, str | list[str]] = services.setdefault(port, {})
+            s = services.setdefault(port, {})
             p = s.setdefault("protocols", [])
+            if isinstance(p, str):
+                msg = "protocols must be a list"
+                raise TypeError(msg)
             p.append(protocol)
             s["name"] = name
             services[port] = s
