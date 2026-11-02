@@ -55,17 +55,27 @@ class Command(base.BaseCommand):
         )
 
     def handle(self, *_, **options) -> None:
+        Asset = apps.get_model(app_label="blueflow", model_name="Asset")
+        # headers = [f.attname for f in Asset._meta.concrete_fields]
+        headers = Asset.export_headers()
+        # formatted_assets = []
+        # raw_assets = (
+        #     Asset.objects.all()
+        #     .prefetch_related("request_receivers__request")
+        #     .prefetch_related("request_senders__request")
+        #     .prefetch_related("interface")
+        # )
+        # for asset in raw_assets:
+        #     a = list(fields(asset, headers))
+        #     formatted_assets.append(a)
+
         file_path = options.get("filepath")
         if not file_path:
             file_path = DEFAULT_EXPORT
-
-        Asset = apps.get_model(app_label="blueflow", model_name="Asset")
-        all_data = Asset.export()
-
+        formatted_assets = Asset.export()
         with pathlib.Path(file_path).open(encoding="utf-8", mode="w") as file:
             writer = csv.writer(file)
-            for row in all_data:
-                writer.writerow(row)
-
+            writer.writerow(headers)
+            writer.writerows(formatted_assets)
         count = Asset.objects.count()
         self.stdout.write(f"{count} assets written to {file_path}")
