@@ -160,7 +160,7 @@ class Asset(system.System):
     @classmethod
     def _fields(
         cls, a: "Asset", headers: abc.Iterable[str], formatter=None
-    ) -> abc.Generator[typing.Any]:
+    ) -> abc.Iterable[typing.Any]:
         if not formatter:
             formatter = cls.formatter
         for h in headers:
@@ -171,27 +171,24 @@ class Asset(system.System):
                 yield None
 
     @classmethod
-    def export(cls, delem=",") -> abc.Generator["str"]:
-
+    def export_headers(cls) -> abc.Iterable[str]:
         Asset = apps.get_model(app_label="blueflow", model_name="Asset")
-        headers = []
         for f in Asset._meta.concrete_fields:  # noqa: SLF001
             _f = str(f.attname)
-            headers.append(_f)
-            yield f"{_f}{delem}"
+            yield _f
 
-        yield "\n"
-
+    @classmethod
+    def export(cls) -> abc.Iterable[abc.Iterable[typing.Any]]:
         raw_assets = (
             Asset.objects.all()
             .prefetch_related("request_receivers__request")
             .prefetch_related("request_senders__request")
             .prefetch_related("interface")
         )
+        headers = list(cls.export_headers())
         for asset in raw_assets:
-            for value in cls._fields(asset, headers):
-                yield f"{value}{delem}"
-            yield "\n"
+            a = cls._fields(asset, headers)
+            yield list(a)
 
     @property
     def cpe(self) -> str:
