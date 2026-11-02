@@ -1,44 +1,10 @@
 import csv
-import datetime
 import pathlib
-import typing
-from collections import abc
 
 from django.apps import apps
-from django.core import exceptions
 from django.core.management import base
-from django.db import models
-
-from blueflow import models as bf_models
-
-Assets = abc.Iterable[bf_models.Asset]
-CollectedAssets = dict[str, Assets | abc.Generator[str]]
-
 
 DEFAULT_EXPORT = "/tmp/assets.csv"  # noqa: S108 # nosec
-
-
-def formatter(anything: typing.Any) -> str:
-    match anything:
-        case datetime.datetime():
-            return anything.isoformat()
-        case models.Model():
-            return str(anything.pk)
-        case None:
-            return ""
-        case _:
-            return str(anything)
-
-
-def fields(
-    a: "bf_models.Asset", headers: abc.Iterable[str], formatter=formatter
-) -> abc.Generator[typing.Any]:
-    for h in headers:
-        try:
-            attr = getattr(a, h, None)
-            yield formatter(attr)
-        except exceptions.ObjectDoesNotExist:
-            yield None
 
 
 class Command(base.BaseCommand):
@@ -56,18 +22,7 @@ class Command(base.BaseCommand):
 
     def handle(self, *_, **options) -> None:
         Asset = apps.get_model(app_label="blueflow", model_name="Asset")
-        # headers = [f.attname for f in Asset._meta.concrete_fields]
         headers = Asset.export_headers()
-        # formatted_assets = []
-        # raw_assets = (
-        #     Asset.objects.all()
-        #     .prefetch_related("request_receivers__request")
-        #     .prefetch_related("request_senders__request")
-        #     .prefetch_related("interface")
-        # )
-        # for asset in raw_assets:
-        #     a = list(fields(asset, headers))
-        #     formatted_assets.append(a)
 
         file_path = options.get("filepath")
         if not file_path:
