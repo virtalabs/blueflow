@@ -176,7 +176,7 @@ class Asset(system.System):
         Asset = apps.get_model(app_label="blueflow", model_name="Asset")
         headers = []
         for f in Asset._meta.concrete_fields:  # noqa: SLF001
-            _f = str(f)
+            _f = str(f.attname)
             headers.append(_f)
             yield f"{_f}{delem}"
 

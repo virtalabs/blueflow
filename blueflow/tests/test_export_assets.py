@@ -17,7 +17,9 @@ def export(tmp_path) -> list[list[str]]:
 
 
 def export_dicts(tmp_path) -> list[dict[str, str]]:
-    header, *rows = export(tmp_path)
+    all_rows = export(tmp_path)
+    header = all_rows[0]
+    rows = all_rows[1:]
     return [dict(zip(header, row, strict=True)) for row in rows]
 
 
