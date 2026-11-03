@@ -8,7 +8,7 @@ migrate:
   DJANGO_SETTINGS_MODULE=project.settings.development ./project/manage.py migrate
 
 test:
-  DJANGO_SETTINGS_MODULE=project.settings.test uv run pytest | tee /tmp/blueflow-test-$(date +'%Y%m%d%H%M')
+  DJANGO_SETTINGS_MODULE=project.settings.test uv run pytest -n auto -W 'error::ResourceWarning' | tee /tmp/blueflow-test-$(date +'%Y%m%d%H%M')
 
 run:
   DJANGO_SETTINGS_MODULE=project.settings.development ./project/manage.py runserver
