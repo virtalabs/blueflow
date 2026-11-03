@@ -2,9 +2,8 @@ import csv
 import pathlib
 
 from django.apps import apps
+from django.conf import settings
 from django.core.management import base
-
-DEFAULT_EXPORT = "/tmp/assets.csv"  # noqa: S108 # nosec
 
 
 class Command(base.BaseCommand):
@@ -26,7 +25,7 @@ class Command(base.BaseCommand):
 
         file_path = options.get("filepath")
         if not file_path:
-            file_path = DEFAULT_EXPORT
+            file_path = settings.DEFAULT_EXPORT_PATH
         formatted_assets = Asset.export()
         with pathlib.Path(file_path).open(encoding="utf-8", mode="w") as file:
             writer = csv.writer(file)

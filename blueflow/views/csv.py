@@ -1,6 +1,8 @@
 import pathlib
 
 from django import http
+from django.conf import settings
+from django.core import management
 from rest_framework import request, status, views
 
 from blueflow import permissions
@@ -12,7 +14,8 @@ class CsvView(views.APIView):
     permission_classes = (permissions.IsBiomedical | permissions.IsAdmin,)
 
     def get(self, _: request.Request) -> http.FileResponse:
-        path = "/tmp/assets.csv"  # noqa: S108 # nosec: B108
+        path = settings.DEFAULT_EXPORT_PATH
+        management.call_command("export_assets", filepath=path)
         # django wants to manage the file io for us
         file = pathlib.Path(path).open(mode="rb")  # noqa: SIM115
         headers = {
