@@ -20,7 +20,6 @@ class CsvView(views.APIView):
         file = pathlib.Path(path).open(mode="rb")  # noqa: SIM115
         headers = {
             "content-type": "text/csv",
-            "content-disposition": 'attachement;filename="assets.csv"',
         }
         return http.FileResponse(
             file, as_attachment=True, headers=headers, status=status.HTTP_200_OK
