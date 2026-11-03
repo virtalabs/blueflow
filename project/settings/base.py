@@ -106,3 +106,5 @@ REST_FRAMEWORK = {
 CELERY_TASK_ALWAYS_EAGER = (
     os.environ.get("CELERY_TASK_ALWAYS_EAGER", "true").lower() == "true"
 )
+
+DEFAULT_EXPORT_PATH = str(os.environ.get("DEFAULT_EXPORT_PATH", "/tmp/assets.csv"))  # noqa: S108 # nosec: B108
