@@ -179,12 +179,7 @@ class Asset(system.System):
 
     @classmethod
     def export(cls) -> abc.Iterable[abc.Iterable[typing.Any]]:
-        raw_assets = (
-            Asset.objects.all()
-            .prefetch_related("request_receivers__request")
-            .prefetch_related("request_senders__request")
-            .prefetch_related("interface")
-        )
+        raw_assets = Asset.objects.all()
         headers = list(cls.export_headers())
         for asset in raw_assets:
             a = cls._fields(asset, headers)
