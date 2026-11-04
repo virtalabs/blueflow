@@ -1,6 +1,7 @@
 """Asset is the core model for tracking all internal systems."""
 
 import datetime
+import json
 import logging
 import typing
 from collections import abc
@@ -152,6 +153,12 @@ class Asset(system.System):
                 return anything.isoformat()
             case models.Model():
                 return str(anything.pk)
+            case dict():
+                return json.dumps(anything)
+            # alternatively we could only conert to json
+            # if any subelement is a dict, this seems easier.
+            case list():
+                return json.dumps(anything)
             case None:
                 return ""
             case _:
