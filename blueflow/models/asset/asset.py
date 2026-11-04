@@ -1,5 +1,6 @@
 """Asset is the core model for tracking all internal systems."""
 
+from dataclasses import dataclass
 import datetime
 import json
 import logging
@@ -23,9 +24,6 @@ from blueflow.models import (
 from . import system, util
 
 logger = logging.getLogger(__name__)
-
-Service = dict[str, str | list[str]]
-
 
 class Asset(system.System):
     """Asset represents any system internal to the owned network.
@@ -201,21 +199,22 @@ class Asset(system.System):
         """
         return cpe.build_cpe(self)
 
+    @dataclass
+    class Service:
+        name: str
+        protocols: list[str]
+
     def _get_request_services(
         self, request_type: models.QuerySet
     ) -> dict[int, Service]:
-        services: dict[int, Service] = {}
+        services: dict[int, Asset.Service] = {}
         for r in request_type:
             port = int(r.request.port)
             protocol = str(r.request.protocol)
             name = str(r.request.service)
-            s: Service = services.setdefault(port, {})
-            p: list[str] | str = s.setdefault("protocols", [])
-            if isinstance(p, str):
-                msg = "protocols must be a list"
-                raise TypeError(msg)
-            p.append(protocol)
-            s["name"] = name
+            s = services.setdefault(port, self.Service(name="", protocols=[]))
+            s.protocols.append(protocol)
+            s.name = name
             services[port] = s
         return services
 
