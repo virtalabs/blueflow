@@ -201,15 +201,11 @@ class Asset(system.System):
         """
         return cpe.build_cpe(self)
 
-    @property
-    def services(self) -> dict[int, Service]:
-        """A list of services associated with this asset.
-
-        Assumes prefetched as needed
-        """
+    def _get_request_services(
+        self, request_type: models.QuerySet
+    ) -> dict[int, Service]:
         services: dict[int, Service] = {}
-
-        for r in self.request_receivers.all():
+        for r in request_type:
             port = int(r.request.port)
             protocol = str(r.request.protocol)
             name = str(r.request.service)
@@ -221,19 +217,17 @@ class Asset(system.System):
             p.append(protocol)
             s["name"] = name
             services[port] = s
+        return services
 
-        for r in self.request_senders.all():
-            port = int(r.request.port)
-            protocol = str(r.request.protocol)
-            name = str(r.request.service)
-            s = services.setdefault(port, {})
-            p = s.setdefault("protocols", [])
-            if isinstance(p, str):
-                msg = "protocols must be a list"
-                raise TypeError(msg)
-            p.append(protocol)
-            s["name"] = name
-            services[port] = s
+    @property
+    def services(self) -> dict[int, Service]:
+        """A list of services associated with this asset.
+
+        Assumes prefetched as needed
+        """
+        receivers = self._get_request_services(self.request_receivers.all())
+        senders = self._get_request_services(self.request_senders.all())
+        services = {**receivers, **senders}
         return services
 
     def __str__(self) -> str:
