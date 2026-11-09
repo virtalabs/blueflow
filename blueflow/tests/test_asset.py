@@ -615,3 +615,19 @@ def test_asset_delete_cascades_through_rows_keeps_lookup(
     a1.delete()
     assert models.SystemRequest.objects.count() == 1
     assert models.Request.objects.filter(port=80, protocol="tcp").exists()
+
+
+def test_asset_services_merges_receiver_and_sender(db: None) -> None:
+    """A port seen as both receiver and sender keeps protocols from both sides."""
+    asset = models.Asset.objects.create(manufacturer="Acme")
+    peer = models.Asset.objects.create(manufacturer="Acme")
+    tcp = models.Request.objects.create(port=80, protocol="tcp", service="http")
+    udp = models.Request.objects.create(port=80, protocol="udp", service="http")
+    models.SystemRequest.objects.create(sender=peer, receiver=asset, request=tcp)
+    models.SystemRequest.objects.create(sender=asset, request=udp)
+
+    services = asset.services
+
+    assert list(services) == [80]
+    assert services[80].name == "http"
+    assert sorted(services[80].protocols) == ["tcp", "udp"]
