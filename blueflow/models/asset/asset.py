@@ -1,11 +1,11 @@
 """Asset is the core model for tracking all internal systems."""
 
-from dataclasses import dataclass
 import datetime
 import json
 import logging
 import typing
 from collections import abc
+from dataclasses import dataclass
 
 import netaddr
 from django.apps import apps
@@ -24,6 +24,7 @@ from blueflow.models import (
 from . import system, util
 
 logger = logging.getLogger(__name__)
+
 
 class Asset(system.System):
     """Asset represents any system internal to the owned network.
@@ -204,16 +205,15 @@ class Asset(system.System):
         name: str
         protocols: list[str]
 
-    def _get_request_services(
-        self, request_type: models.QuerySet
-    ) -> dict[int, Service]:
+    def _get_request_services(self, request_type: abc.Iterable) -> dict[int, Service]:
         services: dict[int, Asset.Service] = {}
         for r in request_type:
             port = int(r.request.port)
             protocol = str(r.request.protocol)
             name = str(r.request.service)
             s = services.setdefault(port, self.Service(name="", protocols=[]))
-            s.protocols.append(protocol)
+            if protocol not in s.protocols:
+                s.protocols.append(protocol)
             s.name = name
             services[port] = s
         return services
@@ -224,10 +224,9 @@ class Asset(system.System):
 
         Assumes prefetched as needed
         """
-        receivers = self._get_request_services(self.request_receivers.all())
-        senders = self._get_request_services(self.request_senders.all())
-        services = {**receivers, **senders}
-        return services
+        return self._get_request_services(
+            [*self.request_receivers.all(), *self.request_senders.all()]
+        )
 
     def __str__(self) -> str:
         return f"{self.id}:{self.hostname}:{self.ip_address}"
