@@ -5,9 +5,11 @@ http://pytest-django.readthedocs.io/en/latest/helpers.html
 """
 
 import dataclasses
+import datetime
 
 import netaddr
 import pytest
+from django import db as django_db
 from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
@@ -640,3 +642,137 @@ def test_asset_import_row_matches_export_headers() -> None:
     read_only = {"created", "modified", "system_ptr_id"}
     names = {f.name for f in dataclasses.fields(models.Asset.ImportRow)}
     assert names == set(models.Asset.export_headers()) - read_only
+
+
+def _exported_rows() -> list[dict[str, str]]:
+    headers = list(models.Asset.export_headers())
+    return [dict(zip(headers, row, strict=True)) for row in models.Asset.export()]
+
+
+def _comparable(
+    rows: list[dict[str, str]], skip: frozenset[str] = frozenset({"modified"})
+) -> list[dict[str, str]]:
+    return sorted(
+        ({k: v for k, v in r.items() if k not in skip} for r in rows),
+        key=lambda r: r["id"],
+    )
+
+
+def _make_import_assets() -> list[models.Asset]:
+    return [
+        baker.make(
+            "Asset",
+            name="alpha",
+            hostname="alpha.local",
+            os="Linux",
+            external_keys={"ECN": "1"},
+            last_scanned=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
+        ),
+        baker.make("Asset", name="beta", hostname="beta.local", os="Windows"),
+    ]
+
+
+def test_import_rows_round_trip_is_lossless(db: None) -> None:
+    """Re-importing an export updates every asset and changes nothing."""
+    _make_import_assets()
+    before = _exported_rows()
+    assert models.Asset.import_rows(before) == (0, 2)
+    assert models.Asset.objects.count() == len(before)
+    assert _comparable(_exported_rows()) == _comparable(before)
+
+
+def test_import_rows_restores_deleted_assets(db: None) -> None:
+    """Importing an export into an empty table recreates the same ids."""
+    _make_import_assets()
+    before = _exported_rows()
+    models.Asset.objects.all().delete()
+    assert models.Asset.import_rows(before) == (2, 0)
+    # created is read-only on import, so recreated rows get a fresh one.
+    skip = frozenset({"created", "modified"})
+    assert _comparable(_exported_rows(), skip) == _comparable(before, skip)
+
+
+@pytest.mark.parametrize("row", [{"name": "new"}, {"id": "", "name": "new"}])
+def test_import_rows_without_id_creates(db: None, row: dict[str, str]) -> None:
+    """A missing or blank id creates a new asset."""
+    assert models.Asset.import_rows([row]) == (1, 0)
+    assert models.Asset.objects.get().name == "new"
+
+
+def test_import_rows_partial_row_updates_only_given_columns(db: None) -> None:
+    """Missing or blank cells leave existing values alone."""
+    asset = baker.make("Asset", name="keep", manufacturer="Acme", os="Linux")
+    rows = [{"id": str(asset.id), "os": "FreeBSD", "manufacturer": ""}]
+    assert models.Asset.import_rows(rows) == (0, 1)
+    asset.refresh_from_db()
+    assert asset.os == "FreeBSD"
+    assert asset.name == "keep"
+    assert asset.manufacturer == "Acme"
+
+
+def test_import_rows_blank_hostname_clears_it(db: None) -> None:
+    """Hostname is the exception: a blank cell clears it to NULL."""
+    asset = baker.make("Asset", hostname="spam")
+    models.Asset.import_rows([{"id": str(asset.id), "hostname": ""}])
+    asset.refresh_from_db()
+    assert asset.hostname is None
+
+
+def test_import_rows_external_keys_json(db: None) -> None:
+    """external_keys is parsed from JSON; a blank cell keeps the old value."""
+    asset = baker.make("Asset", external_keys={"ECN": "1"})
+    models.Asset.import_rows([{"id": str(asset.id), "external_keys": ""}])
+    asset.refresh_from_db()
+    assert asset.external_keys == {"ECN": "1"}
+
+    models.Asset.import_rows([{"id": str(asset.id), "external_keys": '{"ECN": "2"}'}])
+    asset.refresh_from_db()
+    assert asset.external_keys == {"ECN": "2"}
+
+
+def test_import_rows_ignores_read_only_and_unknown_columns(db: None) -> None:
+    """created, modified, system_ptr_id and unknown columns are dropped."""
+    asset = baker.make("Asset", name="old")
+    created = asset.created
+    row = {
+        "id": str(asset.id),
+        "name": "new",
+        "created": "2000-01-01T00:00:00+00:00",
+        "modified": "2000-01-01T00:00:00+00:00",
+        "system_ptr_id": "424242",
+        "bogus": "x",
+    }
+    assert models.Asset.import_rows([row]) == (0, 1)
+    asset.refresh_from_db()
+    assert asset.name == "new"
+    assert asset.created == created
+
+
+def test_import_rows_bad_row_rolls_back_all(db: None) -> None:
+    """One failing row undoes every earlier row in the same import."""
+    asset = baker.make("Asset", name="old")
+    baker.make("Asset", hostname="taken")
+    rows = [
+        {"id": str(asset.id), "name": "new"},
+        {"name": "dupe", "hostname": "taken"},
+    ]
+    with pytest.raises(django_db.IntegrityError):
+        models.Asset.import_rows(rows)
+    assert models.Asset.objects.count() == 2
+    asset.refresh_from_db()
+    assert asset.name == "old"
+
+
+def test_import_rows_mixed_batch_counts(db: None) -> None:
+    """Counts split rows into created and updated."""
+    asset = baker.make("Asset")
+    rows = [{"id": str(asset.id), "name": "a"}, {"name": "b"}, {"name": "c"}]
+    assert models.Asset.import_rows(rows) == (2, 1)
+    assert models.Asset.objects.count() == 3
+
+
+def test_import_rows_explicit_id_does_not_break_later_creates(db: None) -> None:
+    """Importing an id ahead of the pk sequence must not collide later."""
+    last = models.Asset.objects.create()
+    models.Asset.import_rows([{"id": str(last.id + 1), "name": "imported"}])
+    models.Asset.objects.create()
