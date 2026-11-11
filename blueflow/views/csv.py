@@ -2,10 +2,10 @@ import csv
 import io
 import pathlib
 
-from django import http
+from django import db, http
 from django.conf import settings
 from django.core import management
-from rest_framework import parsers, request, response, status, views
+from rest_framework import exceptions, parsers, request, response, status, views
 
 from blueflow import models, permissions
 
@@ -29,8 +29,13 @@ class CsvView(views.APIView):
         )
 
     def post(self, req: request.Request) -> response.Response:
+        if "file" not in req.FILES:
+            raise exceptions.ValidationError({"file": "This field is required."})
         text = io.TextIOWrapper(req.FILES["file"], encoding="utf-8", newline="")
-        created, updated = models.Asset.import_rows(csv.DictReader(text))
+        try:
+            created, updated = models.Asset.import_rows(csv.DictReader(text))
+        except (ValueError, db.IntegrityError) as e:
+            raise exceptions.ValidationError(str(e)) from e
         return response.Response(
             {"created": created, "updated": updated}, status=status.HTTP_201_CREATED
         )
