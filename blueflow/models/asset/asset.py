@@ -10,7 +10,8 @@ from collections import abc
 import netaddr
 from django.apps import apps
 from django.core import exceptions
-from django.db import models, transaction
+from django.core.management import color
+from django.db import connection, models, transaction
 from simple_history import models as simple_history
 
 from blueflow.models import (
@@ -251,6 +252,11 @@ class Asset(system.System):
                     )
                 created += is_new
                 updated += not is_new
+            # Explicit ids don't advance the pk sequence; resync it like loaddata.
+            parents = cls._meta.get_parent_list()
+            with connection.cursor() as cursor:
+                for sql in connection.ops.sequence_reset_sql(color.no_style(), parents):
+                    cursor.execute(sql)
         return created, updated
 
     @property
