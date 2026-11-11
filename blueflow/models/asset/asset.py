@@ -1,16 +1,16 @@
 """Asset is the core model for tracking all internal systems."""
 
+import dataclasses
 import datetime
 import json
 import logging
 import typing
 from collections import abc
-from dataclasses import dataclass
 
 import netaddr
 from django.apps import apps
 from django.core import exceptions
-from django.db import models
+from django.db import models, transaction
 from simple_history import models as simple_history
 
 from blueflow.models import (
@@ -191,6 +191,68 @@ class Asset(system.System):
             a = cls._fields(asset, headers)
             yield list(a)
 
+    @dataclasses.dataclass
+    class ImportRow:
+        """Writable columns of an exported csv row; ``None`` leaves a field unset."""
+
+        id: str | None = None
+        name: str | None = None
+        hostname: str | None = None
+        oui_manufacturer: str | None = None
+        manufacturer: str | None = None
+        model: str | None = None
+        serial_number: str | None = None
+        udi: str | None = None
+        tag_number: str | None = None
+        category: str | None = None
+        owner: str | None = None
+        os: str | None = None
+        app_sw_version: str | None = None
+        last_scanned: str | None = None
+        last_pinged: str | None = None
+        external_keys: dict[str, str] | None = None
+
+        @classmethod
+        def from_csv(cls, row: dict[str, str]) -> typing.Self:
+            names = {f.name for f in dataclasses.fields(cls)} - {"external_keys"}
+            values = {k: v for k, v in row.items() if k in names and v != ""}
+            external_keys = row.get("external_keys")
+            return cls(
+                **values,
+                external_keys=json.loads(external_keys) if external_keys else None,
+            )
+
+        def defaults(self) -> dict[str, typing.Any]:
+            """Model kwargs; a blank hostname is always written to clear it."""
+            fields = {
+                k: v for k, v in dataclasses.asdict(self).items() if v is not None
+            }
+            fields.pop("id", None)
+            fields["hostname"] = self.hostname
+            return fields
+
+    @classmethod
+    def import_rows(cls, rows: abc.Iterable[dict[str, str]]) -> tuple[int, int]:
+        """Create or update assets from exported csv rows, matched on ``id``.
+
+        Inverse of ``export``; returns ``(created, updated)`` counts.
+        """
+        created = 0
+        updated = 0
+        with transaction.atomic():
+            for raw in rows:
+                row = cls.ImportRow.from_csv(raw)
+                if row.id is None:
+                    Asset.objects.create(**row.defaults())
+                    is_new = True
+                else:
+                    _, is_new = Asset.objects.update_or_create(
+                        id=row.id, defaults=row.defaults()
+                    )
+                created += is_new
+                updated += not is_new
+        return created, updated
+
     @property
     def cpe(self) -> str:
         """Build this asset's CPE 2.3 string from manufacturer / model.
@@ -200,7 +262,7 @@ class Asset(system.System):
         """
         return cpe.build_cpe(self)
 
-    @dataclass
+    @dataclasses.dataclass
     class Service:
         name: str
         protocols: list[str]

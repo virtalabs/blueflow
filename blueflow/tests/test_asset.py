@@ -4,6 +4,8 @@ Uses built-in pytest-django text fixtures from
 http://pytest-django.readthedocs.io/en/latest/helpers.html
 """
 
+import dataclasses
+
 import netaddr
 import pytest
 from freezegun import freeze_time
@@ -631,3 +633,10 @@ def test_asset_services_merges_receiver_and_sender(db: None) -> None:
     assert list(services) == [80]
     assert services[80].name == "http"
     assert sorted(services[80].protocols) == ["tcp", "udp"]
+
+
+def test_asset_import_row_matches_export_headers() -> None:
+    """ImportRow covers every exported column that import is allowed to write."""
+    read_only = {"created", "modified", "system_ptr_id"}
+    names = {f.name for f in dataclasses.fields(models.Asset.ImportRow)}
+    assert names == set(models.Asset.export_headers()) - read_only
