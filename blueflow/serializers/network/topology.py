@@ -1,5 +1,5 @@
+import ipaddress
 import typing
-from ipaddress import IPv4Network, IPv6Network, ip_network
 
 from rest_framework import serializers
 
@@ -7,18 +7,8 @@ from blueflow.models import Asset, System, SystemRequest
 from blueflow.models.network import constants
 
 
-class CidrListField(serializers.ListField):
-    child = serializers.CharField()
-
-    def validate_child(self, arg: str) -> IPv4Network | IPv6Network:
-        try:
-            return ip_network(arg)
-        except ValueError as e:
-            raise serializers.ValidationError from e
-
-
 class TopologyRequestSerializer(serializers.Serializer):
-    cidrs = CidrListField(required=False)
+    cidrs = serializers.ListField(required=False, child=serializers.CharField())
     network = serializers.CharField(required=False)
     scope = serializers.ChoiceField(
         choices=constants.ScopeChoices.choices, default=constants.ScopeChoices.boundary
@@ -26,6 +16,17 @@ class TopologyRequestSerializer(serializers.Serializer):
 
     def validate_scope(self, arg: str) -> constants.ScopeChoices:
         return constants.ScopeChoices(arg)
+
+    def validate_cidrs(
+        self, ags: list[str]
+    ) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+        cidrs = []
+        for a in ags:
+            try:
+                cidrs.append(ipaddress.ip_network(a))
+            except ValueError as e:
+                raise serializers.ValidationError from e
+        return cidrs
 
 
 class QueryResponseSerializer(serializers.Serializer):
