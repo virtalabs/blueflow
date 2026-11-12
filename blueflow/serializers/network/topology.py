@@ -6,6 +6,8 @@ from rest_framework import serializers
 from blueflow.models import Asset, System, SystemRequest
 from blueflow.models.network import constants
 
+Cidrs = list[ipaddress.IPv4Network | ipaddress.IPv6Network]
+
 
 class TopologyRequestSerializer(serializers.Serializer):
     cidrs = serializers.ListField(required=False, child=serializers.CharField())
@@ -17,20 +19,23 @@ class TopologyRequestSerializer(serializers.Serializer):
     def validate_scope(self, arg: str) -> constants.ScopeChoices:
         return constants.ScopeChoices(arg)
 
-    def validate_cidrs(
-        self, ags: list[str]
-    ) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    def validate_cidrs(self, data: list[str]) -> Cidrs:
         cidrs = []
-        for a in ags:
+        for d in data:
             try:
-                cidrs.append(ipaddress.ip_network(a))
+                cidrs.append(ipaddress.ip_network(d))
             except ValueError as e:
                 raise serializers.ValidationError from e
         return cidrs
 
 
+class CidrField(serializers.Field):
+    def to_internal_value(self, data: str) -> str:
+        return str(data)
+
+
 class QueryResponseSerializer(serializers.Serializer):
-    cidrs = serializers.ListField(child=serializers.CharField(), required=False)
+    cidrs = serializers.ListField(child=CidrField(), required=False)
     network = serializers.CharField(required=False)
     scope = serializers.ChoiceField(choices=constants.ScopeChoices.choices)
 
@@ -81,7 +86,7 @@ class ExternalEndpointsResponseSerializer(serializers.Serializer):
 
 
 class NetworkSerializer(serializers.Serializer):
-    cidr = serializers.CharField()
+    cidr = CidrField()
     asset_count = serializers.IntegerField(min_value=0)
     connection_count = serializers.IntegerField(min_value=0)
 
