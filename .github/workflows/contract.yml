@@ -1,0 +1,78 @@
+name: Contract
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: blueflow
+          POSTGRES_PASSWORD: blueflow
+          POSTGRES_DB: blueflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U blueflow"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgresql://blueflow:blueflow@localhost:5432/blueflow
+      DJANGO_SETTINGS_MODULE: project.settings.development
+      BLUEFLOW_USERNAME: contract-admin
+      BLUEFLOW_PASSWORD: contract-pass
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      # curl, jq and yq (mikefarah v4) ship with ubuntu-latest
+      - name: Install Prism
+        run: npm install --global @stoplight/prism-cli@5.16.0
+
+      # throwaway DB, so the test admin is created here; the post_save signal
+      # gives it a DRF token
+      - name: Create contract test admin
+        run: |
+          uv run python project/manage.py migrate --noinput
+          TOKEN=$(uv run python project/manage.py shell -c '
+          import os
+          from django.contrib.auth import get_user_model
+          from blueflow import permissions
+          user = get_user_model().objects.create_user(
+              os.environ["BLUEFLOW_USERNAME"], password=os.environ["BLUEFLOW_PASSWORD"]
+          )
+          permissions.IsAdmin.make_admin(user)
+          print(user.auth_token.key)')
+          echo "::add-mask::$TOKEN"
+          echo "BLUEFLOW_API_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+
+      # TODO: Remove continue-on-error once the server matches
+      # contracts/blueflow/openapi.yaml (first runs surface known drift:
+      # undocumented status codes, missing request bodies, readOnly-required fields).
+      - name: Run contract test
+        continue-on-error: true
+        run: ./scripts/contract_test_blueflow.sh
+
+      - name: Upload server and prism logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-logs
+          path: /tmp/blueflow-contract/
