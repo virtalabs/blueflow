@@ -3,6 +3,7 @@
 Do not set DATABASES, SECRET_KEY, DEBUG, ALLOWED_HOSTS here.
 """
 
+import importlib.metadata
 import logging
 import os
 
@@ -101,6 +102,12 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ],
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "BlueFlow API",
+    "VERSION": importlib.metadata.version("blueflow"),
+    "OAS_VERSION": "3.1.0",
 }
 
 CELERY_TASK_ALWAYS_EAGER = (

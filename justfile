@@ -28,6 +28,10 @@ install:
 api-docs:
   DJANGO_SETTINGS_MODULE=project.settings.development ./project/manage.py spectacular --validate
 
+openapi-contract:
+  DJANGO_SETTINGS_MODULE=project.settings.development uv run ./project/manage.py spectacular --validate --file /tmp/blueflow-openapi.yaml
+  uv run python scripts/merge_openapi.py /tmp/blueflow-openapi.yaml
+
 security-check:
   uv run bandit --configfile pyproject.toml --severity-level high --confidence-level medium -f json --output /tmp/report.json --recursive blueflow
 
