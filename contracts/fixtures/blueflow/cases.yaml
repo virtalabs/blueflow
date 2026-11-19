@@ -1,0 +1,110 @@
+# Prism contract cases for contracts/blueflow/openapi.yaml, run in order by
+# scripts/contract_test_blueflow.sh. Every operationId in the spec needs a case.
+#
+# Keys: op (operationId), path / query (maps), body (JSON), form (multipart,
+# "@file" uploads), expect (status list, default any 2xx), auth: none,
+# save ({var: jq path} from the response body).
+# Placeholders: "{var}" from save or built-ins (run_id, base_url), "{env:NAME}".
+# A string that is exactly "{var}" keeps the captured value's type.
+
+- op: schema_retrieve
+
+- op: api_token_auth_create
+  auth: none
+  body: {username: "{env:BLUEFLOW_USERNAME}", password: "{env:BLUEFLOW_PASSWORD}"}
+
+- op: auth_login_create
+  auth: none
+  body: {username: "{env:BLUEFLOW_USERNAME}", password: "{env:BLUEFLOW_PASSWORD}"}
+
+- op: auth_register_create
+  body: {username: "contract-{run_id}", password: "contract-pass-{run_id}", role: viewer}
+
+# assets
+- op: assets_create
+  body: {name: "contract-asset-{run_id}"}
+  save: {asset_id: .id}
+- op: assets_list
+  query: {limit: 1}
+- op: assets_retrieve
+  path: {id: "{asset_id}"}
+- op: assets_update
+  path: {id: "{asset_id}"}
+  body: {name: "contract-asset-{run_id}-put"}
+- op: assets_partial_update
+  path: {id: "{asset_id}"}
+  body: {hostname: contract-test.local}
+- op: assets_bulk_update_partial_update
+  body: [{id: "{asset_id}", os: Linux}]
+- op: assets_upsert_update
+  body: {mac_address: "02:00:5e:00:53:01", name: "contract-upsert-{run_id}"}
+  expect: [200, 201]
+- op: csv_retrieve
+- op: csv_create
+  form: {file: "@contracts/fixtures/blueflow/assets.csv"}
+- op: assets_destroy
+  path: {id: "{asset_id}"}
+
+# schedules
+- op: crontabs_create
+  body: {minute: "0", hour: "3", day_of_week: "*", day_of_month: "*", month_of_year: "*"}
+  save: {crontab_id: .id}
+- op: crontabs_list
+- op: crontabs_retrieve
+  path: {id: "{crontab_id}"}
+- op: crontabs_update
+  path: {id: "{crontab_id}"}
+  body: {minute: "30", hour: "4", day_of_week: "*", day_of_month: "*", month_of_year: "*"}
+- op: crontabs_partial_update
+  path: {id: "{crontab_id}"}
+  body: {hour: "5"}
+
+- op: intervals_create
+  body: {every: 10, period: minutes}
+  save: {interval_id: .id}
+- op: intervals_list
+- op: intervals_retrieve
+  path: {id: "{interval_id}"}
+- op: intervals_update
+  path: {id: "{interval_id}"}
+  body: {every: 15, period: minutes}
+- op: intervals_partial_update
+  path: {id: "{interval_id}"}
+  body: {every: 20}
+
+- op: periodictask_create
+  body:
+    name: "contract-task-{run_id}"
+    task: blueflow.celery.tasks.contract_noop
+    enabled: false
+    interval: "{base_url}/api/intervals/{interval_id}/"
+  save: {task_id: .id}
+- op: periodictask_list
+- op: periodictask_retrieve
+  path: {id: "{task_id}"}
+- op: periodictask_update
+  path: {id: "{task_id}"}
+  body:
+    name: "contract-task-{run_id}"
+    task: blueflow.celery.tasks.contract_noop
+    enabled: false
+    crontab: "{base_url}/api/crontabs/{crontab_id}/"
+- op: periodictask_partial_update
+  path: {id: "{task_id}"}
+  body: {description: contract test}
+- op: periodictask_destroy
+  path: {id: "{task_id}"}
+- op: crontabs_destroy
+  path: {id: "{crontab_id}"}
+- op: intervals_destroy
+  path: {id: "{interval_id}"}
+
+# network
+- op: network_telemetry_create
+  body: {src_ip: 10.99.0.1, dst_ip: 10.99.0.2, dst_port: 443, protocol: tcp, service: https, response_observed: true}
+- op: getTopologySnapshot
+
+# viper: callback points at a closed port so the eager task can't reach anything
+- op: viper_webhook_create
+  body: {callback: "http://127.0.0.1:9/callback", since: "2026-01-01T00:00:00Z", max_pages: 1, page_size: 1}
+  expect: [202]

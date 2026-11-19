@@ -47,3 +47,6 @@ diff-security:
   del new["loc"];\
   del historic["loc"];\
   sys.exit(int(historic != new))'
+
+contract-test:
+  ./scripts/contract_test_blueflow.sh
